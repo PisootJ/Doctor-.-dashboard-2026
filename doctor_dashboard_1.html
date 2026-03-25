@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard แพทย์ สสจ. กาญจนบุรี ปี 69</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --bg2: #e8eeff;
+    --bg3: #dde5ff;
+    --card: #ffffff;
+    --border: #c7d4f5;
+    --accent: #5b8dee;
+    --accent2: #4fb3d9;
+    --accent3: #52c4a0;
+    --accent4: #f5a623;
+    --accent5: #f47f7f;
+    --text: #2d3a5e;
+    --text2: #5a6a96;
+    --text3: #8a96b8;
+    --glow: rgba(91,141,238,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sarabun', 'IBM Plex Sans Thai', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(91,141,238,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91,141,238,0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #5b8dee, #4fb3d9, #52c4a0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+
+  .header-left p {
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(82,196,160,0.15);
+    border: 1px solid rgba(82,196,160,0.4);
+    color: #2ea885;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-top: 8px;
+  }
+
+  .badge::before { content: ''; width: 7px; height: 7px; background: #2ea885; border-radius: 50%; animation: pulse 2s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .kpi:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(91,141,238,0.15); }
+
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--kpi-color, var(--accent));
+  }
+
+  .kpi-icon {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    opacity: .85;
+  }
+
+  .kpi-val {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--kpi-color, var(--accent2));
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-label {
+    font-size: 0.78rem;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  .kpi-sub {
+    font-size: 0.72rem;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  /* CHARTS GRID */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  @media(max-width:860px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .chart-card.wide { grid-column: 1 / -1; }
+
+  .chart-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .chart-sub {
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: 18px;
+  }
+
+  .canvas-wrap { position: relative; }
+
+  /* TABLE */
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    overflow-x: auto;
+  }
+
+  .table-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  thead th {
+    text-align: left;
+    color: var(--text3);
+    font-weight: 500;
+    font-size: 0.73rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(30,58,95,0.4);
+    transition: background .15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(91,141,238,0.06); }
+
+  tbody td {
+    padding: 10px 10px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .hosp-name { font-weight: 600; font-size: 0.82rem; }
+
+  .bar-mini {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+    min-width: 80px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .chip-ok { background: rgba(82,196,160,.18); color: #1a9970; }
+  .chip-warn { background: rgba(245,166,35,.18); color: #c47d0a; }
+  .chip-bad { background: rgba(244,127,127,.18); color: #c0392b; }
+
+  /* movement summary */
+  .move-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  @media(max-width:640px) { .move-grid { grid-template-columns: 1fr; } }
+
+  .move-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .move-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .move-val { font-size: 1.6rem; font-weight: 700; }
+  .move-label { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+
+  /* search */
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .search-wrap input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,141,238,0.15); }
+  .search-wrap input::placeholder { color: var(--text3); }
+
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>🏥 Dashboard แพทย์ สสจ.</h1>
+      <p>สำนักงานสาธารณสุขจังหวัดกาญจนบุรี · ปีงบประมาณ 2569</p>
+      <span class="badge">ข้อมูล ณ วันที่ 24 มีนาคม 2569</span>
+    </div>
+  </header>
+
+  <!-- KPI -->
+  <p class="section-title">ภาพรวมกำลังคนแพทย์</p>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- MOVEMENT SUMMARY -->
+  <p class="section-title" style="margin-top:8px">ความเคลื่อนไหวแพทย์ปี 69</p>
+  <div class="move-grid" id="moveGrid"></div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">จำนวนแพทย์รายโรงพยาบาล</div>
+      <div class="chart-sub">แพทย์ปัจจุบันทั้งหมด แยกรายโรงพยาบาล</div>
+      <div class="canvas-wrap" style="height:280px"><canvas id="chartHosp"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">สัดส่วนประเภทแพทย์ปัจจุบัน</div>
+      <div class="chart-sub">Intern 1, 2, 3 · GP · Specialist</div>
+      <div class="canvas-wrap" style="height:240px"><canvas id="chartType"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">การโยกย้ายของแพทย์ทุกประเภท ปี 69</div>
+      <div class="chart-sub">รวม 30 คน</div>
+      <div class="canvas-wrap" style="height:240px"><canvas id="chartOut"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">ย้ายเข้าปี 69 แยกประเภท</div>
+      <div class="chart-sub">รวม 9 คน</div>
+      <div class="canvas-wrap" style="height:240px"><canvas id="chartIn"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-title">📋 ตารางสรุปรายโรงพยาบาล</div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="🔍 ค้นหาโรงพยาบาล...">
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>โรงพยาบาล</th>
+          <th>แพทย์ทั้งหมด</th>
+          <th>GP</th>
+          <th>Specialist</th>
+          <th>Intern รวม</th>
+          <th>ย้ายออก</th>
+          <th>ย้ายเข้า</th>
+          <th>แพทย์คงเหลือ*</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p style="font-size:0.72rem;color:var(--text3);margin-top:12px">* แพทย์คงเหลือ (ไม่นับ Intern 1 ปี 69)</p>
+  </div>
+
+  <!-- INTERN ALLOCATION -->
+  <p class="section-title" style="margin-top:28px">จัดสรรแพทย์ปี 69</p>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;">
+    <div style="font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:4px">📋 จัดสรรแพทย์ปี 69</div>
+    <div style="font-size:0.75rem;color:var(--text3);margin-bottom:20px">ข้อมูลสำรวจ ณ เดือน มีนาคม 2569</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+      <div style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:1px solid #c7d2fe;border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:6px;">🎓</div>
+        <div style="font-size:2rem;font-weight:700;color:#4f46e5;line-height:1;">13</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4338ca;margin-top:6px;">Intern 1 ขึ้น 2</div>
+        <div style="font-size:0.72rem;color:#6366f1;margin-top:3px;">คน</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:6px;">⏳</div>
+        <div style="font-size:2rem;font-weight:700;color:#c2410c;line-height:1;">3</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#c2410c;margin-top:6px;">Intern 1 จบช้า</div>
+        <div style="font-size:0.72rem;color:#ea580c;margin-top:3px;">คน</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:6px;">🏨</div>
+        <div style="font-size:2rem;font-weight:700;color:#15803d;line-height:1;">5</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#15803d;margin-top:6px;">Intern เอกชน</div>
+        <div style="font-size:0.72rem;color:#16a34a;margin-top:3px;">คน</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px 16px;background:rgba(91,141,238,.08);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span style="font-size:0.8rem;color:var(--text2);">รวมจัดสรรทั้งหมด</span>
+      <span style="font-size:1.3rem;font-weight:700;color:#3a6dd8;">21 <span style="font-size:0.8rem;font-weight:400;color:var(--text3);">คน</span></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// คอลัมน์: name, กรอบสูง, กรอบต่ำ, แพทย์ทั้งหมด, FTE%, ลาเรียน,
+//           i1, i2, i3, gp, sp,
+//           out_gpIn, out_spIn, out_gpOut, out_spOut, out_gpLearn, out_spLearn, out_gpResign, out_spResign, outTotal,
+//           in_gpIn, in_spIn, in_gpFrom, in_spFrom, in_grad, inTotal, finalBefore
+const data = [
+  // ทองผาภูมิ: i1=2,i2=1,i3=2,gp=1,sp=14 | ย้ายออก: gpIn=0,spIn=3,gpOut=0,spOut=0,gpLearn=2,spLearn=1,gpR=0,spR=0 รวม=6 | ย้ายเข้า: gpIn=0,spIn=0,gpFrom=0,spFrom=0,grad=2 รวม=2
+  { name:'ทองผาภูมิ',             high:21,low:17,total:20,fte:117.65,laRian:1, i1:2,i2:1,i3:2,gp:1,sp:14, outTotal:6,  inTotal:2,  finalBefore:14 },
+  // สมเด็จพระสังฆราชฯ๑๙: i1=0,i2=0,i3=4,gp=3,sp=12 | ย้ายออก: gpLearn=2 รวม=2 | ย้ายเข้า: grad=1 รวม=1
+  { name:'สมเด็จพระสังฆราชฯ ๑๙',  high:34,low:28,total:19,fte:67.86, laRian:2, i1:0,i2:0,i3:4,gp:3,sp:12, outTotal:2,  inTotal:1,  finalBefore:18 },
+  // บ่อพลอย: i1=0,i2=4,i3=0,gp=0,sp=5 | ย้ายออก: gpIn=2,spIn=1,gpOut=0,spOut=1,gpLearn=2 รวม=6 | ย้ายเข้า: รวม=0
+  { name:'บ่อพลอย',               high:16,low:13,total:9, fte:69.23, laRian:3, i1:0,i2:4,i3:0,gp:0,sp:5,  outTotal:6,  inTotal:0,  finalBefore:3  },
+  // เจ้าคุณไพบูลย์ฯ: i1=0,i2=0,i3=3,gp=4,sp=0 | ย้ายออก: gpLearn=2 รวม=2 | ย้ายเข้า: gpIn=1,gpFrom=1 รวม=2
+  { name:'เจ้าคุณไพบูลย์พนมทวน', high:12,low:10,total:7, fte:70.00, laRian:0, i1:0,i2:0,i3:3,gp:4,sp:0,  outTotal:2,  inTotal:2,  finalBefore:7  },
+  // ด่านมะขามเตี้ย: i1=0,i2=1,i3=2,gp=2,sp=0 | ย้ายออก: gpIn=1,gpOut=1,gpLearn=2 รวม=4 | ย้ายเข้า: รวม=0
+  { name:'ด่านมะขามเตี้ย',        high:10,low:8, total:5, fte:62.50, laRian:0, i1:0,i2:1,i3:2,gp:2,sp:0,  outTotal:4,  inTotal:0,  finalBefore:1  },
+  // ท่ากระดาน: i1=0,i2=0,i3=2,gp=1,sp=0 | ย้ายออก: gpLearn=1 รวม=1 | ย้ายเข้า: รวม=0
+  { name:'ท่ากระดาน',             high:4, low:3, total:3, fte:100.00,laRian:0, i1:0,i2:0,i3:2,gp:1,sp:0,  outTotal:1,  inTotal:0,  finalBefore:2  },
+  // ไทรโยค: i1=0,i2=4,i3=0,gp=2,sp=0 | ย้ายออก: gpLearn=1 รวม=1 | ย้ายเข้า: รวม=0
+  { name:'ไทรโยค',                high:10,low:9, total:6, fte:66.67, laRian:0, i1:0,i2:4,i3:0,gp:2,sp:0,  outTotal:1,  inTotal:0,  finalBefore:5  },
+  // เลาขวัญ: i1=0,i2=5,i3=0,gp=1,sp=0 | ย้ายออก: gpLearn=1 รวม=1 | ย้ายเข้า: gpIn=2 รวม=2
+  { name:'เลาขวัญ',               high:12,low:10,total:6, fte:60.00, laRian:0, i1:0,i2:5,i3:0,gp:1,sp:0,  outTotal:1,  inTotal:2,  finalBefore:7  },
+  // สถานพระบารมี: i1=0,i2=1,i3=1,gp=1,sp=1 | ย้ายออก: รวม=0 | ย้ายเข้า: รวม=0
+  { name:'สถานพระบารมี',          high:7, low:6, total:4, fte:66.67, laRian:0, i1:0,i2:1,i3:1,gp:1,sp:1,  outTotal:0,  inTotal:0,  finalBefore:4  },
+  // สมเด็จพระปิยฯ: i1=0,i2=0,i3=1,gp=0,sp=2 | ย้ายออก: รวม=0 | ย้ายเข้า: รวม=0
+  { name:'สมเด็จพระปิยมหาราชฯ',  high:6, low:5, total:3, fte:60.00, laRian:0, i1:0,i2:0,i3:1,gp:0,sp:2,  outTotal:0,  inTotal:0,  finalBefore:3  },
+  // สังขละบุรี: i1=1,i2=1,i3=1,gp=3,sp=0 | ย้ายออก: gpIn=1,gpLearn=2 รวม=3 | ย้ายเข้า: gpFrom=1,grad=1(?) รวม=1
+  { name:'สังขละบุรี',             high:9, low:8, total:6, fte:75.00, laRian:0, i1:1,i2:1,i3:1,gp:3,sp:0,  outTotal:3,  inTotal:1,  finalBefore:3  },
+  // ห้วยกระเจาฯ ๘๐: i1=0,i2=0,i3=2,gp=3,sp=0 | ย้ายออก: gpLearn=3 รวม=3 | ย้ายเข้า: รวม=0
+  { name:'ห้วยกระเจาฯ ๘๐ พรรษา', high:8, low:6, total:5, fte:83.33, laRian:0, i1:0,i2:0,i3:2,gp:3,sp:0,  outTotal:3,  inTotal:0,  finalBefore:2  },
+  // ศุกร์ศิริฯ: i1=0,i2=0,i3=0,gp=2,sp=0 | ย้ายออก: รวม=0 | ย้ายเข้า: รวม=0
+  { name:'ศุกร์ศิริศรีสวัสดิ์',   high:3, low:3, total:2, fte:66.67, laRian:0, i1:0,i2:0,i3:0,gp:2,sp:0,  outTotal:0,  inTotal:0,  finalBefore:2  },
+  // หนองปรือ: i1=1,i2=2,i3=0,gp=1,sp=0 | ย้ายออก: gpLearn=1 รวม=1 | ย้ายเข้า: gpIn=1 รวม=1
+  { name:'หนองปรือ',              high:3, low:3, total:4, fte:133.33,laRian:0, i1:1,i2:2,i3:0,gp:1,sp:0,  outTotal:1,  inTotal:1,  finalBefore:3  },
+];
+
+const colors = {
+  blue:   '#5b8dee',
+  sky:    '#4fb3d9',
+  green:  '#52c4a0',
+  amber:  '#f5a623',
+  red:    '#f47f7f',
+  purple: '#b07fe8',
+  teal:   '#3dbdaa',
+};
+
+const chartDefaults = {
+  plugins: { legend: { labels: { color:'#5a6a96', font:{size:11, family:"'Sarabun',sans-serif"} } } },
+  scales: {
+    x: { ticks:{color:'#8a96b8',font:{size:10}}, grid:{color:'rgba(91,141,238,0.08)'} },
+    y: { ticks:{color:'#8a96b8',font:{size:10}}, grid:{color:'rgba(91,141,238,0.1)'} },
+  }
+};
+
+// ---------- KPI ----------
+const kpis = [
+  { icon:'👨‍⚕️', label:'แพทย์ทั้งหมด ปี 68',  val:95,  sub:'ปฏิบัติงานจริง',           color:colors.blue },
+  { icon:'🏥', label:'จำนวนโรงพยาบาล',          val:14,  sub:'ในสังกัด สสจ.',            color:colors.sky },
+  { icon:'🎓', label:'Intern รวม (1+2+3)',       val:41,  sub:'i1=4, i2=19, i3=18 (รวม)', color:colors.purple },
+  { icon:'👨‍⚕️', label:'GP ใช้ทุนครบ',           val:24,  sub:'ไม่ได้เรียนต่อ',           color:colors.teal },
+  { icon:'🔬', label:'Specialist',               val:34,  sub:'แพทย์เฉพาะทาง',            color:colors.green },
+  { icon:'➡️', label:'การโยกย้ายของแพทย์ทุกประเภท ปี 69', val:30, sub:'รวมทุกประเภท', color:colors.red },
+  { icon:'⬅️', label:'ย้ายเข้า / เรียนจบ ปี 69', val:9,   sub:'รวมทุกประเภท',             color:colors.green },
+  { icon:'🏁', label:'แพทย์ก่อนจัดสรร Intern',  val:74,  sub:'ไม่นับ Intern 1',          color:colors.blue },
+];
+
+const kpiGrid = document.getElementById('kpiGrid');
+kpis.forEach(k => {
+  kpiGrid.innerHTML += `
+    <div class="kpi" style="--kpi-color:${k.color}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`;
+});
+
+// ---------- MOVEMENT CARDS ----------
+const moves = [
+  { icon:'📤', label:'ลาออก + เรียนต่อ + ย้ายนอกจังหวัด', val:22, bg:'rgba(244,127,127,.15)', color:'#c0392b' },
+  { icon:'📥', label:'ย้ายเข้าจากจังหวัดอื่น + เรียนจบ', val:5,  bg:'rgba(82,196,160,.15)',  color:'#1a9970' },
+  { icon:'✅', label:'แพทย์คงเหลือ (ไม่นับ intern 1)',    val:74, bg:'rgba(91,141,238,.15)', color:'#3a6dd8' },
+];
+
+const moveGrid = document.getElementById('moveGrid');
+moves.forEach(m => {
+  moveGrid.innerHTML += `
+    <div class="move-card">
+      <div class="move-icon" style="background:${m.bg}; color:${m.color}">${m.icon}</div>
+      <div>
+        <div class="move-val" style="color:${m.color}">${m.val}</div>
+        <div class="move-label">${m.label}</div>
+      </div>
+    </div>`;
+});
+
+// ---------- CHART: Hospital Bar ----------
+new Chart(document.getElementById('chartHosp'), {
+  type: 'bar',
+  data: {
+    labels: data.map(d => d.name),
+    datasets: [
+      { label:'แพทย์ปัจจุบัน', data: data.map(d=>d.total), backgroundColor:'rgba(91,141,238,.7)', borderRadius:4 },
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    responsive: true, maintainAspectRatio: false,
+    plugins: { ...chartDefaults.plugins, legend:{display:false} },
+    scales: {
+      x: { ...chartDefaults.scales.x, ticks:{...chartDefaults.scales.x.ticks, maxRotation:45} },
+      y: { ...chartDefaults.scales.y, beginAtZero:true },
+    }
+  }
+});
+
+// ---------- CHART: Type Doughnut ----------
+const totalI1=4, totalI2=19, totalI3=18, totalGP=24, totalSP=34;
+new Chart(document.getElementById('chartType'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Intern 1','Intern 2','Intern 3','GP (ใช้ทุนครบ)','Specialist'],
+    datasets: [{
+      data: [totalI1, totalI2, totalI3, totalGP, totalSP],
+      backgroundColor: ['#8faef5','#b07fe8','#f4a7c9','#f5c87a','#6dd5b5'],
+      borderColor: '#ffffff', borderWidth: 3,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position:'bottom', labels:{color:'#5a6a96', font:{size:10}, padding:10} } }
+  }
+});
+
+// ---------- CHART: Out Pie ----------
+new Chart(document.getElementById('chartOut'), {
+  type: 'pie',
+  data: {
+    labels: ['GP ย้ายในจังหวัด','SP ย้ายในจังหวัด','GP ย้ายนอกจังหวัด','SP ย้ายนอกจังหวัด','GP เรียนต่อ','SP เรียนต่อ','GP ลาออก','SP ลาออก'],
+    datasets: [{
+      data: [4,4,1,1,19,1,0,0],
+      backgroundColor:['#8faef5','#b07fe8','#f5c87a','#f9e0a0','#f47f7f','#f9aaaa','#c8d0e0','#dde3ee'],
+      borderColor:'#ffffff', borderWidth:2
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: { legend:{position:'bottom',labels:{color:'#5a6a96',font:{size:9},padding:6}} }
+  }
+});
+
+// ---------- CHART: In Pie ----------
+new Chart(document.getElementById('chartIn'), {
+  type: 'pie',
+  data: {
+    labels: ['GP ย้ายในจังหวัด','SP ย้ายในจังหวัด','GP จากต่างจังหวัด','SP จากต่างจังหวัด','เรียนจบกลับ'],
+    datasets: [{
+      data: [4,0,2,0,3],
+      backgroundColor:['#6dd5b5','#a8edd8','#8faef5','#c0d4ff','#b07fe8'],
+      borderColor:'#ffffff', borderWidth:2
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: { legend:{position:'bottom',labels:{color:'#5a6a96',font:{size:9},padding:6}} }
+  }
+});
+
+// ---------- TABLE ----------
+const maxTotal = Math.max(...data.map(d=>d.total));
+
+function getChip(fte) {
+  if (fte >= 100) return `<span class="chip chip-ok">เพียงพอ</span>`;
+  if (fte >= 75)  return `<span class="chip chip-warn">ต่ำกว่าเกณฑ์</span>`;
+  return `<span class="chip chip-bad">ขาดแคลน</span>`;
+}
+
+function renderTable(filter='') {
+  const tbody = document.getElementById('tableBody');
+  const filtered = data.filter(d => d.name.includes(filter));
+  tbody.innerHTML = filtered.map(d => `
+    <tr>
+      <td class="hosp-name">${d.name}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span>${d.total}</span>
+          <div class="bar-mini" style="width:70px">
+            <div class="bar-fill" style="width:${(d.total/maxTotal*100).toFixed(0)}%"></div>
+          </div>
+        </div>
+      </td>
+      <td>${d.gp}</td>
+      <td>${d.sp}</td>
+      <td>${d.i1+d.i2+d.i3}</td>
+      <td style="color:#c0392b;font-weight:600">${d.outTotal}</td>
+      <td style="color:#1a9970;font-weight:600">${d.inTotal}</td>
+      <td style="color:#3a6dd8;font-weight:700">${d.finalBefore}</td>
+    </tr>`).join('');
+}
+
+renderTable();
+document.getElementById('searchInput').addEventListener('input', e => renderTable(e.target.value));
+</script>
+</body>
+</html>
