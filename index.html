@@ -100,9 +100,9 @@ select:focus{border-color:var(--accent);}
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab(0)">แถบ 1 · ภาพรวม รพช.</div>
-  <div class="tab" onclick="showTab(1)">แถบ 2 · Intern 1 วนรพช.</div>
-  <div class="tab" onclick="showTab(2)">แถบ 3 · สรุป & จัดสรร</div>
+  <div class="tab active" onclick="showTab(0)">ภาพรวม รพช.</div>
+  <div class="tab" onclick="showTab(1)">Intern 1 วนรพช.</div>
+  <div class="tab" onclick="showTab(2)">สรุป & จัดสรร</div>
 </div>
 
 <!-- TAB 1 -->
@@ -422,24 +422,29 @@ function renderHospitalDetail(){
   if(!sel){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;">เลือกโรงพยาบาลเพื่อดูรายละเอียด</div>';return;}
   const h = HOSPITALS.find(x=>x.name===sel);
   const docs = DOCTOR_LISTS[sel] || [];
+  const fteColor = h.fte>=80?'#1a9970':h.fte>=60?'#c47d0a':'#c0392b';
+  const fteBg   = h.fte>=80?'rgba(82,196,160,.12)':h.fte>=60?'rgba(245,166,35,.12)':'rgba(244,127,127,.12)';
   el.innerHTML = `
-    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr));">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px;">
       <div class="kpi"><div class="num">${h.actual}</div><div class="lbl">แพทย์ปัจจุบัน</div></div>
       <div class="kpi"><div class="num">${h.ql}</div><div class="lbl">กรอบต่ำ</div></div>
-      ${fteChip(h.fte).replace('class="chip','class="kpi" style="padding:12px;"><div class="num"').replace('</span>','</div><div class="lbl">FTE (กรอบต่ำ)</div>')}
+      <div class="kpi" style="background:${fteBg};"><div class="num" style="color:${fteColor};">${h.fte.toFixed(1)}%</div><div class="lbl">FTE (กรอบต่ำ)</div></div>
       <div class="kpi teal"><div class="num">${h.sp}</div><div class="lbl">Specialist</div></div>
       <div class="kpi orange"><div class="num">${h.gp}</div><div class="lbl">GP</div></div>
       <div class="kpi purple"><div class="num">${h.i1+h.i2+h.i3}</div><div class="lbl">Intern รวม</div></div>
     </div>
-    <table>
-      <thead><tr><th>#</th><th style="text-align:left">ชื่อ-นามสกุล</th><th>อายุ</th><th>ประเภท</th><th>ตำแหน่ง</th><th>สาขา</th><th>แผนปี 69</th></tr></thead>
+    <div style="overflow-x:auto;">
+    <table style="min-width:600px;">
+      <thead><tr><th style="width:32px">#</th><th style="text-align:left">ชื่อ-นามสกุล</th><th style="width:44px">อายุ</th><th style="width:96px">ประเภท</th><th style="width:110px">ตำแหน่ง</th><th>สาขา</th><th style="width:110px">แผนปี 69</th></tr></thead>
       <tbody>${docs.map((d,i)=>`<tr>
         <td>${i+1}</td><td style="text-align:left">${d.name}</td><td>${d.age}</td>
-        <td><span class="chip" style="background:${typeColor(d.type)}22;color:${typeColor(d.type)}">${d.type}</span></td>
-        <td>${d.pos}</td><td>${d.specialty}</td>
-        <td>${d.plan==='ปฏิบัติงานต่อ'?'<span class="chip chip-ok">ปฏิบัติงานต่อ</span>':d.plan}</td>
+        <td><span class="chip" style="background:${typeColor(d.type)}22;color:${typeColor(d.type)};font-size:10px;">${d.type}</span></td>
+        <td style="font-size:11px;color:var(--text2)">${d.pos}</td>
+        <td style="font-size:11px">${d.specialty}</td>
+        <td>${d.plan==='ปฏิบัติงานต่อ'?'<span class="chip chip-ok">ต่อเนื่อง</span>':'<span class="chip chip-warn">'+d.plan+'</span>'}</td>
       </tr>`).join('')}</tbody>
     </table>
+    </div>
   `;
 }
 
