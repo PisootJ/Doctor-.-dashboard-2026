@@ -243,6 +243,8 @@ const DOCTOR_LISTS = {
     {name:'นพ. ชัช จันทร์ขำ',age:54,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
     {name:'(รอรายชื่อ intern1 เอกชน)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
     {name:'(รอรายชื่อ intern1 เอกชน)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+    {name:'(รอรายชื่อ intern1 จบช้า)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
   ],
   'ท่ากระดาน':[
     {name:'นพ. พิสุทธิ์ จรุงเรืองทรัพย์',age:31,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
@@ -366,7 +368,7 @@ const MOVE_DATA = [
 // Tab 4: จัดสรรแพทย์ปี 69
 // columns: name, qs, ql, t68(รวมi1), gp68, sp68, fte68%, remain68, gp_remain, sp_remain, alloc_gp, alloc_priv, alloc_late, alloc_i1_70, t69_gp, t69_sp, fte69_low%, fte69_high%
 const ALLOC_DATA = [
-  {name:'ทองผาภูมิ',       qs:21,ql:17,t68:20,gp68:6, sp68:14,remain68:14,alloc_gp:12,alloc_priv:1,alloc_late:0,t69_gp:17,t69_sp:5,  fte69l:'100.00%',fte69h:'80.95%'},
+  {name:'ทองผาภูมิ',       qs:21,ql:17,t68:20,gp68:6, sp68:14,remain68:14,alloc_gp:12,alloc_priv:1,alloc_late:0,t69_gp:5, t69_sp:12, fte69l:'100.00%',fte69h:'80.95%'},
   {name:'สมเด็จ19ฯ',       qs:34,ql:28,t68:19,gp68:7, sp68:12,remain68:17,alloc_gp:13,alloc_priv:2,alloc_late:0,t69_gp:6, t69_sp:13, fte69l:'67.86%', fte69h:'55.88%'},
   {name:'บ่อพลอย',         qs:16,ql:13,t68:9, gp68:4, sp68:5, remain68:3, alloc_gp:3, alloc_priv:4,alloc_late:1,t69_gp:5, t69_sp:3,  fte69l:'61.54%', fte69h:'50.00%'},
   {name:'เจ้าคุณไพบูลย์',  qs:12,ql:10,t68:7, gp68:7, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:7, t69_sp:0,  fte69l:'70.00%', fte69h:'58.33%'},
@@ -384,7 +386,7 @@ const ALLOC_DATA = [
 
 // Tab 4 comparison data
 const COMPARE = [
-  {name:'ทองผาภูมิ',       y68:20, y69_gp:17, y69_sp:5},
+  {name:'ทองผาภูมิ',       y68:20, y69_gp:5,  y69_sp:12},
   {name:'สมเด็จ19ฯ',       y68:19, y69_gp:6,  y69_sp:13},
   {name:'บ่อพลอย',         y68:9,  y69_gp:5,  y69_sp:3},
   {name:'เจ้าคุณไพบูลย์',  y68:7,  y69_gp:7,  y69_sp:0},
@@ -441,20 +443,33 @@ function renderTab1(){
   // Chart
   if(charts.overview) charts.overview.destroy();
   const names = HOSPITALS.map(h=>h.name.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จ19ฯ').replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณไพบูลย์').replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ').replace('สมเด็จพระปิยมหาราชฯ','สมเด็จปิยฯ').replace('ห้วยกระเจาฯ','ห้วยกระเจาฯ'));
+  const topLabelPlugin = {
+    id:'topLabel',
+    afterDatasetsDraw(chart){
+      const {ctx,data,scales:{x,y}} = chart;
+      ctx.save();
+      data.datasets[0].data.forEach((v,i)=>{
+        const xPos = x.getPixelForValue(i);
+        const yPos = y.getPixelForValue(v);
+        ctx.fillStyle='#2d3a5e'; ctx.font='bold 11px Sarabun,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.fillText(v, xPos, yPos-2);
+      });
+      ctx.restore();
+    }
+  };
   charts.overview = new Chart(document.getElementById('chart-overview'),{
     type:'bar',
+    plugins:[topLabelPlugin],
     data:{
       labels:names,
       datasets:[
-        {label:'กรอบต่ำ',data:HOSPITALS.map(h=>h.ql),backgroundColor:'rgba(199,212,245,.5)',borderColor:'#c7d4f5',borderWidth:1},
-        {label:'Specialist',data:HOSPITALS.map(h=>h.sp),backgroundColor:'rgba(109,213,181,.8)',borderWidth:0,stack:'actual'},
-        {label:'GP',data:HOSPITALS.map(h=>h.gp),backgroundColor:'rgba(245,200,122,.85)',borderWidth:0,stack:'actual'},
-        {label:'Intern',data:HOSPITALS.map(h=>h.i1+h.i2+h.i3),backgroundColor:'rgba(143,174,245,.85)',borderWidth:0,stack:'actual'},
+        {label:'แพทย์รวม',data:HOSPITALS.map(h=>h.actual),backgroundColor:'rgba(91,141,238,.72)',borderWidth:0,borderRadius:3},
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{size:11},color:'#5a6a96'}}},
+      plugins:{legend:{display:false}},
       scales:{
         x:{ticks:{font:{size:10},color:'#8a96b8'},grid:{display:false}},
         y:{beginAtZero:true,ticks:{font:{size:10},color:'#8a96b8'},grid:{color:'rgba(199,212,245,.4)'},title:{display:true,text:'จำนวนแพทย์',color:'#8a96b8',font:{size:10}}}
@@ -543,14 +558,15 @@ function renderTab3(){
   });
 
   // Detail table
-  let html = `<table style="min-width:780px;">
+  let html = `<table style="min-width:900px;">
     <thead>
       <tr>
         <th rowspan="2" style="text-align:left;min-width:110px">โรงพยาบาล</th>
         <th rowspan="2">แพทย์ปี 68</th>
         <th colspan="5" style="background:#fff0f0">ย้ายออก ปี 69</th>
         <th colspan="4" style="background:#f0fff8">ย้ายเข้า ปี 69</th>
-        <th rowspan="2">คงเหลือ</th>
+        <th colspan="4" style="background:#fdf5ff">สรุปการเปลี่ยนแปลง</th>
+        <th rowspan="2" style="background:#e8eeff;font-weight:800">คงเหลือ<br><span style="font-size:9px;font-weight:400">(ไม่นับ intern1)</span></th>
       </tr>
       <tr style="font-size:10px;">
         <th style="background:#fff0f0">GP ย้ายใน จ.</th>
@@ -562,17 +578,25 @@ function renderTab3(){
         <th style="background:#f0fff8">ย้ายจาก จ.อื่น</th>
         <th style="background:#f0fff8">เรียนจบ</th>
         <th style="background:#d0f5e8;font-weight:800">รวมเข้า</th>
+        <th style="background:#fdf5ff">เรียนต่อ<br>(GP+SP)</th>
+        <th style="background:#fdf5ff">ลาออก<br>(GP+SP)</th>
+        <th style="background:#fdf5ff">ย้ายออก<br>นอก จ.</th>
+        <th style="background:#fdf5ff">ย้ายเข้า<br>จาก จ.อื่น</th>
       </tr>
     </thead>
     <tbody>`;
   MOVE_DATA.forEach(r=>{
-    const outGpIn  = r.out.gp_in||0;
-    const outSpIn  = r.out.sp_in||0;
-    const outNoj   = (r.out.gp_out||0)+(r.out.sp_out||0);
-    const outStudy = (r.out.gp_study||0)+(r.out.sp_study||0);
-    const inIn     = (r.inp.gp_in||0)+(r.inp.sp_in||0);
-    const inOther  = (r.inp.gp_other||0)+(r.inp.sp_other||0);
-    const grad     = r.inp.grad||0;
+    const outGpIn   = r.out.gp_in||0;
+    const outSpIn   = r.out.sp_in||0;
+    const outNoj    = (r.out.gp_out||0)+(r.out.sp_out||0);
+    const outStudy  = (r.out.gp_study||0)+(r.out.sp_study||0);
+    const inIn      = (r.inp.gp_in||0)+(r.inp.sp_in||0);
+    const inOther   = (r.inp.gp_other||0)+(r.inp.sp_other||0);
+    const grad      = r.inp.grad||0;
+    const sumStudy  = (r.out.gp_study||0)+(r.out.sp_study||0);
+    const sumQuit   = (r.out.gp_quit||0)+(r.out.sp_quit||0);
+    const sumOutNoj = (r.out.gp_out||0)+(r.out.sp_out||0);
+    const sumInOth  = (r.inp.gp_other||0)+(r.inp.sp_other||0);
     html += `<tr>
       <td style="text-align:left;font-weight:600">${r.name}</td>
       <td>${r.t68}</td>
@@ -585,41 +609,54 @@ function renderTab3(){
       <td style="background:#f5fffb">${inOther||'-'}</td>
       <td style="background:#f5fffb">${grad||'-'}</td>
       <td style="background:#e8faf2;font-weight:700;color:#1a9970">${r.inp.total||'-'}</td>
-      <td style="font-weight:700">${r.remain}</td>
+      <td style="background:#fdf5ff;font-weight:600">${sumStudy||'-'}</td>
+      <td style="background:#fdf5ff;font-weight:600">${sumQuit||'-'}</td>
+      <td style="background:#fdf5ff;font-weight:600">${sumOutNoj||'-'}</td>
+      <td style="background:#fdf5ff;font-weight:600">${sumInOth||'-'}</td>
+      <td style="background:#e8eeff;font-weight:700">${r.remain}</td>
     </tr>`;
   });
   const sumOut = MOVE_DATA.reduce((s,r)=>s+r.out.total,0);
   const sumIn  = MOVE_DATA.reduce((s,r)=>s+r.inp.total,0);
   const sumRem = MOVE_DATA.reduce((s,r)=>s+r.remain,0);
+  const totStudy = MOVE_DATA.reduce((s,r)=>s+(r.out.gp_study||0)+(r.out.sp_study||0),0);
+  const totQuit  = MOVE_DATA.reduce((s,r)=>s+(r.out.gp_quit||0)+(r.out.sp_quit||0),0);
+  const totOutNoj= MOVE_DATA.reduce((s,r)=>s+(r.out.gp_out||0)+(r.out.sp_out||0),0);
+  const totInOth = MOVE_DATA.reduce((s,r)=>s+(r.inp.gp_other||0)+(r.inp.sp_other||0),0);
   html += `<tr style="background:#f0f4ff;font-weight:700;">
     <td style="text-align:left">รวม</td><td>95</td>
     <td colspan="4" style="background:#fff0f0"></td>
     <td style="background:#ffeaea;color:#c0392b">${sumOut}</td>
     <td colspan="3" style="background:#f0fff8"></td>
     <td style="background:#e8faf2;color:#1a9970">${sumIn}</td>
-    <td>${sumRem}</td>
+    <td style="background:#fdf5ff">${totStudy}</td>
+    <td style="background:#fdf5ff">${totQuit}</td>
+    <td style="background:#fdf5ff">${totOutNoj}</td>
+    <td style="background:#fdf5ff">${totInOth}</td>
+    <td style="background:#e8eeff">${sumRem}</td>
   </tr></tbody></table>`;
   document.getElementById('move-table').innerHTML = html;
 }
 
 function renderTab4(){
   // Allocation table
-  let html = `<table style="min-width:820px;">
+  let html = `<table style="min-width:920px;">
     <thead>
       <tr>
         <th rowspan="2" style="text-align:left;min-width:110px">โรงพยาบาล</th>
         <th colspan="3" style="background:#f0f4ff">ปี 68</th>
-        <th colspan="3" style="background:#e8faf2">จัดสรรใหม่ ปี 69</th>
+        <th colspan="4" style="background:#e8faf2">จัดสรรใหม่ ปี 69</th>
         <th colspan="2" style="background:#eef7ff">แพทย์ปี 69</th>
         <th colspan="2" style="background:#f8f0ff">FTE ปี 69</th>
       </tr>
       <tr style="font-size:10px;">
         <th style="background:#f0f4ff">รวม</th>
-        <th style="background:#f0f4ff">GP</th>
+        <th style="background:#f0f4ff">GP+Intern</th>
         <th style="background:#f0f4ff">SP</th>
-        <th style="background:#e8faf2">GP+Intern</th>
+        <th style="background:#e8faf2">จัดสรร intern ปี 69</th>
         <th style="background:#e8faf2">เอกชน</th>
         <th style="background:#e8faf2">จบช้า</th>
+        <th style="background:#e8faf2;color:#b07fe8">จัดสรร intern ปี 70</th>
         <th style="background:#eef7ff">GP+Intern</th>
         <th style="background:#eef7ff">SP</th>
         <th style="background:#f8f0ff">กรอบต่ำ</th>
@@ -639,6 +676,7 @@ function renderTab4(){
       <td style="background:#f0fff8;font-weight:700;color:#1a9970">${r.alloc_gp||'-'}</td>
       <td style="background:#f0fff8">${r.alloc_priv||'-'}</td>
       <td style="background:#f0fff8">${r.alloc_late||'-'}</td>
+      <td style="background:#f5f0ff;color:#b07fe8;font-style:italic">${r.alloc_intern70||'-'}</td>
       <td style="background:#eef7ff;font-weight:700">${r.t69_gp}</td>
       <td style="background:#eef7ff;font-weight:700">${r.t69_sp}</td>
       <td style="background:#f8f0ff;color:${fteColor};font-weight:700">${r.fte69l}</td>
@@ -710,51 +748,4 @@ async function loadData(){
       ]);
       // Parse live summary from res1 (แพทย์รพช)
       if(res1 && res1.fileContent) parseLiveRphc(res1.fileContent);
-      document.getElementById('updated-badge').textContent = '✅ อัปเดต ' + new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
-    } else {
-      document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
-    }
-  } catch(e){
-    document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
-  }
-  renderTab1();
-  renderTab2();
-  renderTab3();
-  renderTab4();
-  document.getElementById('loading').style.display='none';
-}
-
-function parseLiveRphc(content){
-  // Parse markdown table — update HOSPITALS summary row by row
-  const lines = content.split('\n').filter(l=>l.includes('|') && !l.includes(':-:'));
-  const nameMap = {
-    'ทองผาภูมิ':0,'สมเด็จพระสังฆราชองค์ที่๑๙':1,'บ่อพลอย':2,
-    'เจ้าคุณไพบูลย์พนมทวน':3,'ด่านมะขามเตี้ย':4,'ท่ากระดาน':5,
-    'ไทรโยค':6,'เลาขวัญ':7,'สถานพระบารมี':8,'สมเด็จพระปิยมหาราชรมณียเขต':9,
-    'สังขละบุรี':10,'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา':11,'ศุกร์ศิริศรีสวัสดิ์':12,'หนองปรือ':13,
-  };
-  lines.forEach(line=>{
-    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
-    if(cols.length < 10) return;
-    const n = cols[0];
-    const idx = Object.keys(nameMap).findIndex(k=>n.includes(k.substring(0,4)));
-    if(idx===-1) return;
-    const key = Object.keys(nameMap)[idx];
-    const hi = nameMap[key];
-    if(hi===undefined) return;
-    const parseN = v=>{ const m=v.replace(/[^0-9.]/g,''); return m?parseFloat(m):0; };
-    HOSPITALS[hi].ql = parseN(cols[1])||HOSPITALS[hi].ql;
-    HOSPITALS[hi].qs = parseN(cols[0+1])||HOSPITALS[hi].qs;
-    HOSPITALS[hi].actual = parseN(cols[3])||HOSPITALS[hi].actual;
-    HOSPITALS[hi].fte = parseN(cols[4])||HOSPITALS[hi].fte;
-    HOSPITALS[hi].i1 = parseN(cols[6])||HOSPITALS[hi].i1;
-    HOSPITALS[hi].i2 = parseN(cols[7])||HOSPITALS[hi].i2;
-    HOSPITALS[hi].i3 = parseN(cols[8])||HOSPITALS[hi].i3;
-    HOSPITALS[hi].gp = parseN(cols[9])||HOSPITALS[hi].gp;
-    HOSPITALS[hi].sp = parseN(cols[10])||HOSPITALS[hi].sp;
-  });
-}
-
-// Boot
-loadData();
-</script>
+      document.getElementById('updated-badge').textContent = '✅ อัปเด
