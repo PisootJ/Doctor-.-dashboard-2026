@@ -170,13 +170,13 @@ const HOSPITALS = [
   {name:'สมเด็จพระสังฆราชองค์ที่๑๙',qs:34,ql:28,actual:18,fte:64.29,leave:1,i1:0,i2:2,i3:0,gp:4,sp:12},
   {name:'บ่อพลอย',           qs:16,ql:13,actual:8, fte:61.54,leave:1,i1:0,i2:5,i3:0,gp:0,sp:3},
   {name:'เจ้าคุณไพบูลย์พนมทวน',qs:12,ql:10,actual:7, fte:70.00,leave:0,i1:0,i2:0,i3:1,gp:6,sp:0},
-  {name:'ด่านมะขามเตี้ย',    qs:10,ql:8, actual:3, fte:37.50,leave:0,i1:0,i2:2,i3:0,gp:1,sp:0},
+  {name:'ด่านมะขามเตี้ย',    qs:10,ql:8, actual:5, fte:62.50,leave:0,i1:0,i2:2,i3:0,gp:1,sp:0},
   {name:'ท่ากระดาน',         qs:4, ql:3, actual:2, fte:66.67,leave:0,i1:0,i2:0,i3:0,gp:2,sp:0},
   {name:'ไทรโยค',            qs:10,ql:9, actual:5, fte:55.56,leave:0,i1:0,i2:0,i3:3,gp:2,sp:0},
   {name:'เลาขวัญ',           qs:12,ql:10,actual:7, fte:70.00,leave:0,i1:0,i2:0,i3:6,gp:1,sp:0},
   {name:'สถานพระบารมี',      qs:7, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:0,i3:1,gp:2,sp:1},
   {name:'สมเด็จพระปิยมหาราชฯ',qs:6,ql:5,actual:3, fte:60.00,leave:0,i1:0,i2:0,i3:0,gp:1,sp:2},
-  {name:'สังขละบุรี',        qs:9, ql:8, actual:4, fte:50.00,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
+  {name:'สังขละบุรี',        qs:9, ql:8, actual:6, fte:75.00,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
   {name:'ห้วยกระเจาฯ',       qs:8, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
   {name:'ศุกร์ศิริศรีสวัสดิ์',qs:3,ql:3,actual:2,  fte:66.67,leave:0,i1:0,i2:0,i3:0,gp:2,sp:0},
   {name:'หนองปรือ',           qs:3, ql:3, actual:3, fte:100.0,leave:0,i1:0,i2:0,i3:2,gp:1,sp:0},
@@ -368,20 +368,21 @@ const MOVE_DATA = [
 // Tab 4: จัดสรรแพทย์ปี 69
 // columns: name, qs, ql, t68(รวมi1), gp68, sp68, fte68%, remain68, gp_remain, sp_remain, alloc_gp, alloc_priv, alloc_late, alloc_i1_70, t69_gp, t69_sp, fte69_low%, fte69_high%
 const ALLOC_DATA = [
-  {name:'ทองผาภูมิ',       qs:21,ql:17,t68:20,gp68:6, sp68:14,remain68:14,alloc_gp:12,alloc_priv:1,alloc_late:0,t69_gp:5, t69_sp:12, fte69l:'100.00%',fte69h:'80.95%'},
-  {name:'สมเด็จ19ฯ',       qs:34,ql:28,t68:19,gp68:7, sp68:12,remain68:17,alloc_gp:13,alloc_priv:2,alloc_late:0,t69_gp:6, t69_sp:13, fte69l:'67.86%', fte69h:'55.88%'},
-  {name:'บ่อพลอย',         qs:16,ql:13,t68:9, gp68:4, sp68:5, remain68:3, alloc_gp:3, alloc_priv:4,alloc_late:1,t69_gp:5, t69_sp:3,  fte69l:'61.54%', fte69h:'50.00%'},
-  {name:'เจ้าคุณไพบูลย์',  qs:12,ql:10,t68:7, gp68:7, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:7, t69_sp:0,  fte69l:'70.00%', fte69h:'58.33%'},
-  {name:'ด่านมะขามเตี้ย',  qs:10,ql:8, t68:5, gp68:5, sp68:0, remain68:1, alloc_gp:1, alloc_priv:2,alloc_late:1,t69_gp:5, t69_sp:0,  fte69l:'62.50%', fte69h:'50.00%'},
-  {name:'ท่ากระดาน',       qs:4, ql:3, t68:3, gp68:3, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:2, t69_sp:0,  fte69l:'66.67%', fte69h:'50.00%'},
-  {name:'ไทรโยค',          qs:10,ql:9, t68:6, gp68:6, sp68:0, remain68:5, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:5, t69_sp:0,  fte69l:'55.56%', fte69h:'50.00%'},
-  {name:'เลาขวัญ',         qs:12,ql:10,t68:6, gp68:6, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:7, t69_sp:0,  fte69l:'70.00%', fte69h:'58.33%'},
-  {name:'สถานพระบารมี',    qs:7, ql:6, t68:4, gp68:3, sp68:1, remain68:4, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:3, t69_sp:1,  fte69l:'66.67%', fte69h:'57.14%'},
-  {name:'สมเด็จปิยฯ',      qs:6, ql:5, t68:3, gp68:1, sp68:2, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:1, t69_sp:2,  fte69l:'60.00%', fte69h:'50.00%'},
-  {name:'สังขละบุรี',      qs:9, ql:8, t68:6, gp68:6, sp68:0, remain68:3, alloc_gp:2, alloc_priv:0,alloc_late:0,t69_gp:5, t69_sp:0,  fte69l:'62.50%', fte69h:'55.56%'},
-  {name:'ห้วยกระเจาฯ',     qs:8, ql:6, t68:5, gp68:5, sp68:0, remain68:2, alloc_gp:2, alloc_priv:0,alloc_late:1,t69_gp:5, t69_sp:0,  fte69l:'83.33%', fte69h:'62.50%'},
-  {name:'ศุกร์ศิริฯ',      qs:3, ql:3, t68:2, gp68:2, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:2, t69_sp:0,  fte69l:'66.67%', fte69h:'66.67%'},
-  {name:'หนองปรือ',        qs:3, ql:3, t68:4, gp68:4, sp68:0, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,t69_gp:3, t69_sp:0,  fte69l:'100.00%',fte69h:'100.00%'},
+  // alloc_gp=col K (intern69), alloc_priv=col L (เอกชน), alloc_late=col M (จบช้า), alloc_intern70=col N, t69_total=col O
+  {name:'ทองผาภูมิ',       qs:21,ql:17,t68:20,gp68:6, sp68:14,remain68:14,alloc_gp:2, alloc_priv:1,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:12,t69_total:17},
+  {name:'สมเด็จ19ฯ',       qs:34,ql:28,t68:19,gp68:7, sp68:12,remain68:17,alloc_gp:2, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:6, t69_sp:13,t69_total:19},
+  {name:'บ่อพลอย',         qs:16,ql:13,t68:9, gp68:4, sp68:5, remain68:3, alloc_gp:4, alloc_priv:0,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:3, t69_total:8},
+  {name:'เจ้าคุณไพบูลย์',  qs:12,ql:10,t68:7, gp68:7, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:7, t69_sp:0, t69_total:7},
+  {name:'ด่านมะขามเตี้ย',  qs:10,ql:8, t68:5, gp68:5, sp68:0, remain68:1, alloc_gp:1, alloc_priv:2,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
+  {name:'ท่ากระดาน',       qs:4, ql:3, t68:3, gp68:3, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:2, t69_sp:0, t69_total:2},
+  {name:'ไทรโยค',          qs:10,ql:9, t68:6, gp68:6, sp68:0, remain68:5, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
+  {name:'เลาขวัญ',         qs:12,ql:10,t68:6, gp68:6, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:7, t69_sp:0, t69_total:7},
+  {name:'สถานพระบารมี',    qs:7, ql:6, t68:4, gp68:3, sp68:1, remain68:4, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:3, t69_sp:1, t69_total:4},
+  {name:'สมเด็จปิยฯ',      qs:6, ql:5, t68:3, gp68:1, sp68:2, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:1, t69_sp:2, t69_total:3},
+  {name:'สังขละบุรี',      qs:9, ql:8, t68:6, gp68:6, sp68:0, remain68:3, alloc_gp:2, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
+  {name:'ห้วยกระเจาฯ',     qs:8, ql:6, t68:5, gp68:5, sp68:0, remain68:2, alloc_gp:2, alloc_priv:0,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
+  {name:'ศุกร์ศิริฯ',      qs:3, ql:3, t68:2, gp68:2, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:2, t69_sp:0, t69_total:2},
+  {name:'หนองปรือ',        qs:3, ql:3, t68:4, gp68:4, sp68:0, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:3, t69_sp:0, t69_total:3},
 ];
 
 // Tab 4 comparison data
@@ -640,14 +641,13 @@ function renderTab3(){
 
 function renderTab4(){
   // Allocation table
-  let html = `<table style="min-width:920px;">
+  let html = `<table style="min-width:860px;">
     <thead>
       <tr>
         <th rowspan="2" style="text-align:left;min-width:110px">โรงพยาบาล</th>
         <th colspan="3" style="background:#f0f4ff">ปี 68</th>
         <th colspan="4" style="background:#e8faf2">จัดสรรใหม่ ปี 69</th>
-        <th colspan="2" style="background:#eef7ff">แพทย์ปี 69</th>
-        <th colspan="2" style="background:#f8f0ff">FTE ปี 69</th>
+        <th colspan="3" style="background:#eef7ff">แพทย์ปี 69</th>
       </tr>
       <tr style="font-size:10px;">
         <th style="background:#f0f4ff">รวม</th>
@@ -659,15 +659,11 @@ function renderTab4(){
         <th style="background:#e8faf2;color:#b07fe8">จัดสรร intern ปี 70</th>
         <th style="background:#eef7ff">GP+Intern</th>
         <th style="background:#eef7ff">SP</th>
-        <th style="background:#f8f0ff">กรอบต่ำ</th>
-        <th style="background:#f8f0ff">กรอบสูง</th>
+        <th style="background:#dff0ff;font-weight:800">จำนวนแพทย์<br>ประจำปี 69</th>
       </tr>
     </thead>
     <tbody>`;
   ALLOC_DATA.forEach(r=>{
-    const t69 = r.t69_gp + r.t69_sp;
-    const fteL = parseFloat(r.fte69l);
-    const fteColor = fteL>=80?'#1a9970':fteL>=60?'#c47d0a':'#c0392b';
     html += `<tr>
       <td style="text-align:left;font-weight:600">${r.name}</td>
       <td style="background:#f8faff">${r.t68}</td>
@@ -678,20 +674,20 @@ function renderTab4(){
       <td style="background:#f0fff8">${r.alloc_late||'-'}</td>
       <td style="background:#f5f0ff;color:#b07fe8;font-style:italic">${r.alloc_intern70||'-'}</td>
       <td style="background:#eef7ff;font-weight:700">${r.t69_gp}</td>
-      <td style="background:#eef7ff;font-weight:700">${r.t69_sp}</td>
-      <td style="background:#f8f0ff;color:${fteColor};font-weight:700">${r.fte69l}</td>
-      <td style="background:#f8f0ff;font-size:11px;color:var(--text2)">${r.fte69h}</td>
+      <td style="background:#eef7ff;font-weight:700">${r.t69_sp||'-'}</td>
+      <td style="background:#dff0ff;font-weight:800;font-size:15px;color:#1a5fa6">${r.t69_total}</td>
     </tr>`;
   });
   const tot68=ALLOC_DATA.reduce((s,r)=>s+r.t68,0);
   const tot69gp=ALLOC_DATA.reduce((s,r)=>s+r.t69_gp,0);
   const tot69sp=ALLOC_DATA.reduce((s,r)=>s+r.t69_sp,0);
+  const tot69total=ALLOC_DATA.reduce((s,r)=>s+r.t69_total,0);
   html += `<tr style="background:#f0f4ff;font-weight:700;">
     <td style="text-align:left">รวม</td>
     <td>${tot68}</td><td></td><td></td>
-    <td colspan="3"></td>
+    <td colspan="4"></td>
     <td>${tot69gp}</td><td>${tot69sp}</td>
-    <td colspan="2"></td>
+    <td style="background:#dff0ff;font-size:15px;color:#1a5fa6">${tot69total}</td>
   </tr></tbody></table>`;
   document.getElementById('alloc-table').innerHTML = html;
 
@@ -748,4 +744,4 @@ async function loadData(){
       ]);
       // Parse live summary from res1 (แพทย์รพช)
       if(res1 && res1.fileContent) parseLiveRphc(res1.fileContent);
-      document.getElementById('updated-badge').textContent = '✅ อัปเด
+      document.getElementById('updated-badge').textContent = '✅ อัปเดต ' + new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
