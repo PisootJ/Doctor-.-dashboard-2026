@@ -176,7 +176,7 @@ const HOSPITALS = [
   {name:'เลาขวัญ',           qs:12,ql:10,actual:7, fte:70.00,leave:0,i1:0,i2:0,i3:6,gp:1,sp:0},
   {name:'สถานพระบารมี',      qs:7, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:0,i3:1,gp:2,sp:1},
   {name:'สมเด็จพระปิยมหาราชฯ',qs:6,ql:5,actual:3, fte:60.00,leave:0,i1:0,i2:0,i3:0,gp:1,sp:2},
-  {name:'สังขละบุรี',        qs:9, ql:8, actual:6, fte:75.00,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
+  {name:'สังขละบุรี',        qs:9, ql:8, actual:5, fte:62.50,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
   {name:'ห้วยกระเจาฯ',       qs:8, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
   {name:'ศุกร์ศิริศรีสวัสดิ์',qs:3,ql:3,actual:2,  fte:66.67,leave:0,i1:0,i2:0,i3:0,gp:2,sp:0},
   {name:'หนองปรือ',           qs:3, ql:3, actual:3, fte:100.0,leave:0,i1:0,i2:0,i3:2,gp:1,sp:0},
@@ -745,3 +745,52 @@ async function loadData(){
       // Parse live summary from res1 (แพทย์รพช)
       if(res1 && res1.fileContent) parseLiveRphc(res1.fileContent);
       document.getElementById('updated-badge').textContent = '✅ อัปเดต ' + new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
+    } else {
+      document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
+    }
+  } catch(e){
+    document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
+  }
+  renderTab1();
+  renderTab2();
+  renderTab3();
+  renderTab4();
+  document.getElementById('loading').style.display='none';
+}
+
+function parseLiveRphc(content){
+  // Parse markdown table — update HOSPITALS summary row by row
+  const lines = content.split('\n').filter(l=>l.includes('|') && !l.includes(':-:'));
+  const nameMap = {
+    'ทองผาภูมิ':0,'สมเด็จพระสังฆราชองค์ที่๑๙':1,'บ่อพลอย':2,
+    'เจ้าคุณไพบูลย์พนมทวน':3,'ด่านมะขามเตี้ย':4,'ท่ากระดาน':5,
+    'ไทรโยค':6,'เลาขวัญ':7,'สถานพระบารมี':8,'สมเด็จพระปิยมหาราชรมณียเขต':9,
+    'สังขละบุรี':10,'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา':11,'ศุกร์ศิริศรีสวัสดิ์':12,'หนองปรือ':13,
+  };
+  lines.forEach(line=>{
+    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
+    if(cols.length < 10) return;
+    const n = cols[0];
+    const idx = Object.keys(nameMap).findIndex(k=>n.includes(k.substring(0,4)));
+    if(idx===-1) return;
+    const key = Object.keys(nameMap)[idx];
+    const hi = nameMap[key];
+    if(hi===undefined) return;
+    const parseN = v=>{ const m=v.replace(/[^0-9.]/g,''); return m?parseFloat(m):0; };
+    HOSPITALS[hi].ql = parseN(cols[1])||HOSPITALS[hi].ql;
+    HOSPITALS[hi].qs = parseN(cols[0+1])||HOSPITALS[hi].qs;
+    HOSPITALS[hi].actual = parseN(cols[3])||HOSPITALS[hi].actual;
+    HOSPITALS[hi].fte = parseN(cols[4])||HOSPITALS[hi].fte;
+    HOSPITALS[hi].i1 = parseN(cols[6])||HOSPITALS[hi].i1;
+    HOSPITALS[hi].i2 = parseN(cols[7])||HOSPITALS[hi].i2;
+    HOSPITALS[hi].i3 = parseN(cols[8])||HOSPITALS[hi].i3;
+    HOSPITALS[hi].gp = parseN(cols[9])||HOSPITALS[hi].gp;
+    HOSPITALS[hi].sp = parseN(cols[10])||HOSPITALS[hi].sp;
+  });
+}
+
+// Boot
+loadData();
+</script>
+</body>
+</html>
