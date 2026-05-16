@@ -744,6 +744,8 @@ async function loadData(){
       ]);
       // Parse live summary from res1 (แพทย์รพช)
       if(res1 && res1.fileContent) parseLiveRphc(res1.fileContent);
+      // Manual corrections: sheet summary ยังไม่อัปเดตตามรายชื่อจริง
+      applyManualCorrections();
       document.getElementById('updated-badge').textContent = '✅ อัปเดต ' + new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
     } else {
       document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
@@ -787,6 +789,14 @@ function parseLiveRphc(content){
     HOSPITALS[hi].gp = parseN(cols[9])||HOSPITALS[hi].gp;
     HOSPITALS[hi].sp = parseN(cols[10])||HOSPITALS[hi].sp;
   });
+}
+
+function applyManualCorrections(){
+  // ใช้เมื่อ sheet summary ยังไม่สะท้อนตัวเลขจริงในรายชื่อแพทย์
+  // index 4 = ด่านมะขามเตี้ย (รายชื่อ 5 คน แต่ summary = 3)
+  // index 10 = สังขละบุรี (รายชื่อ 5 คน แต่ summary = 4)
+  HOSPITALS[4].actual = 5;  HOSPITALS[4].fte = 62.50;
+  HOSPITALS[10].actual = 5; HOSPITALS[10].fte = 62.50;
 }
 
 // Boot
