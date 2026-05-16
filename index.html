@@ -761,46 +761,53 @@ async function loadData(){
 }
 
 function parseLiveRphc(content){
-  // Parse markdown table — update HOSPITALS summary row by row
-  const lines = content.split('\n').filter(l=>l.includes('|') && !l.includes(':-:'));
-  const nameMap = {
-    'ทองผาภูมิ':0,'สมเด็จพระสังฆราชองค์ที่๑๙':1,'บ่อพลอย':2,
-    'เจ้าคุณไพบูลย์พนมทวน':3,'ด่านมะขามเตี้ย':4,'ท่ากระดาน':5,
-    'ไทรโยค':6,'เลาขวัญ':7,'สถานพระบารมี':8,'สมเด็จพระปิยมหาราชรมณียเขต':9,
-    'สังขละบุรี':10,'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา':11,'ศุกร์ศิริศรีสวัสดิ์':12,'หนองปรือ':13,
-  };
+  const lines = content.split('\n');
+  const parseN = v=>{ const m=(v||'').replace(/[^0-9.]/g,''); return m?parseFloat(m):0; };
+
+  // ─── 1. Parse summary table (qs, ql, fte, i1-i3, gp, sp) ───
+  const summaryKeys = [
+    ['ทองผาภูมิ',0],['สมเด็จพระสังฆราช',1],['บ่อพลอย',2],
+    ['เจ้าคุณไพบูลย์',3],['ด่านมะขามเตี้ย',4],['ท่ากระดาน',5],
+    ['ไทรโยค',6],['เลาขวัญ',7],['สถานพระบารมี',8],['สมเด็จพระปิยมหาราช',9],
+    ['สังขละบุรี',10],['ห้วยกระเจา',11],['ศุกร์ศิริ',12],['หนองปรือ',13]
+  ];
   lines.forEach(line=>{
+    if(!line.includes('|')||line.includes(':-:')) return;
     const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
     if(cols.length < 10) return;
-    const n = cols[0];
-    const idx = Object.keys(nameMap).findIndex(k=>n.includes(k.substring(0,4)));
-    if(idx===-1) return;
-    const key = Object.keys(nameMap)[idx];
-    const hi = nameMap[key];
-    if(hi===undefined) return;
-    const parseN = v=>{ const m=v.replace(/[^0-9.]/g,''); return m?parseFloat(m):0; };
-    HOSPITALS[hi].ql = parseN(cols[1])||HOSPITALS[hi].ql;
-    HOSPITALS[hi].qs = parseN(cols[0+1])||HOSPITALS[hi].qs;
-    HOSPITALS[hi].actual = parseN(cols[3])||HOSPITALS[hi].actual;
-    HOSPITALS[hi].fte = parseN(cols[4])||HOSPITALS[hi].fte;
-    HOSPITALS[hi].i1 = parseN(cols[6])||HOSPITALS[hi].i1;
-    HOSPITALS[hi].i2 = parseN(cols[7])||HOSPITALS[hi].i2;
-    HOSPITALS[hi].i3 = parseN(cols[8])||HOSPITALS[hi].i3;
-    HOSPITALS[hi].gp = parseN(cols[9])||HOSPITALS[hi].gp;
-    HOSPITALS[hi].sp = parseN(cols[10])||HOSPITALS[hi].sp;
+    const qs = parseN(cols[1]), ql = parseN(cols[2]);
+    if(!qs || !ql) return; // not a summary data row
+    const match = summaryKeys.find(([k])=>cols[0].includes(k));
+    if(!match) return;
+    const hi = match[1];
+    HOSPITALS[hi].qs  = qs;
+    HOSPITALS[hi].ql  = ql;
+    HOSPITALS[hi].fte = parseN(cols[4]) || HOSPITALS[hi].fte;
+    HOSPITALS[hi].i1  = parseN(cols[6]);
+    HOSPITALS[hi].i2  = parseN(cols[7]);
+    HOSPITALS[hi].i3  = parseN(cols[8]);
+    HOSPITALS[hi].gp  = parseN(cols[9]);
+    if(cols[10]) HOSPITALS[hi].sp = parseN(cols[10]);
   });
-}
 
-function applyManualCorrections(){
-  // ใช้เมื่อ sheet summary ยังไม่สะท้อนตัวเลขจริงในรายชื่อแพทย์
-  // index 4 = ด่านมะขามเตี้ย (รายชื่อ 5 คน แต่ summary = 3)
-  // index 10 = สังขละบุรี (รายชื่อ 5 คน แต่ summary = 4)
-  HOSPITALS[4].actual = 5;  HOSPITALS[4].fte = 62.50;
-  HOSPITALS[10].actual = 5; HOSPITALS[10].fte = 62.50;
-}
+  // ─── 2. Parse individual doctor lists (in sheet order = HOSPITALS order) ───
+  function normalizeType(t){
+    if(!t) return 'GP';
+    if(t.includes('Specialist')) return 'Specialist';
+    if(t.includes('Intern 1'))   return 'Intern 1';
+    if(t.includes('Intern 2'))   return 'Intern 2';
+    if(t.includes('Intern 3'))   return 'Intern 3';
+    return 'GP';
+  }
 
-// Boot
-loadData();
-</script>
-</body>
-</html>
+  let listHospIdx = -1;
+  let inList = false;
+  let currentDocs = [];
+
+  function saveDocs(){
+    if(listHospIdx >= 0 && listHospIdx < HOSPITALS.length && currentDocs.length > 0){
+      const hospName = HOSPITALS[listHospIdx].name;
+      if(DOCTOR_LISTS[hospName] !== undefined){
+        DOCTOR_LISTS[hospName] = currentDocs;
+        HOSPITALS[listHospIdx].actual = currentDocs.length;
+        // คำนวณ FTE ใหม่จากจำนวนจริง (ไม่รวม intern เพื่อ
