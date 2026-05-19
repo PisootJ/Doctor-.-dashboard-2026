@@ -3,811 +3,848 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard แพทย์ สสจ.กาญจนบุรี</title>
+<title>Dashboard ติดตามแพทย์ สสจ.กาญจนบุรี</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
-:root{color-scheme:light;
---bg:#f0f4ff;--card:#fff;--border:#c7d4f5;
---accent:#5b8dee;--accent2:#4fb3d9;--accent3:#52c4a0;--accent4:#f5a623;--accent5:#f47f7f;
---text:#2d3a5e;--text2:#5a6a96;--text3:#8a96b8;
---i1:#b07fe8;--i2:#8faef5;--i3:#f4a7c9;--gp:#f5c87a;--sp:#6dd5b5;
-}
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Sarabun',sans-serif;}
-body{background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
-/* HEADER */
-.header{background:linear-gradient(135deg,#5b8dee,#4fb3d9);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(91,141,238,.25);}
-.header h1{font-size:18px;font-weight:700;}
-.header .sub{font-size:12px;opacity:.85;margin-top:2px;}
-.badge{background:rgba(255,255,255,.22);border-radius:20px;padding:4px 12px;font-size:11px;white-space:nowrap;}
-.refresh-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:12px;transition:.2s;}
-.refresh-btn:hover{background:rgba(255,255,255,.3);}
-/* TABS */
-.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);padding:0 20px;gap:4px;}
-.tab{padding:12px 20px;cursor:pointer;font-weight:600;font-size:13px;color:var(--text2);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.tab:hover:not(.active){color:var(--text);background:#f8f9ff;border-radius:6px 6px 0 0;}
-/* PANELS */
-.panel{display:none;padding:18px 20px;gap:16px;}
-.panel.active{display:flex;flex-wrap:wrap;}
-/* WINDOWS */
-.window{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:16px;box-shadow:0 2px 8px rgba(91,141,238,.07);}
-.window.full{flex:1 1 100%;}
-.window.half{flex:1 1 calc(50% - 8px);min-width:320px;}
-.win-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
-.win-title::before{content:'';width:4px;height:14px;background:var(--accent);border-radius:2px;display:inline-block;}
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:14px;}
-.kpi{background:linear-gradient(135deg,#f8faff,#eef2ff);border-radius:10px;border:1px solid var(--border);padding:12px;text-align:center;}
-.kpi .num{font-size:28px;font-weight:800;color:var(--accent);line-height:1.1;}
-.kpi .lbl{font-size:11px;color:var(--text2);margin-top:4px;}
-.kpi.green .num{color:#1a9970;}
-.kpi.purple .num{color:#7c5cbf;}
-.kpi.orange .num{color:#c47d0a;}
-.kpi.red .num{color:#c0392b;}
-.kpi.teal .num{color:#0e8577;}
-/* TABLE */
-table{width:100%;border-collapse:collapse;font-size:12px;}
-th{background:#f0f4ff;color:var(--text2);font-weight:700;padding:7px 8px;text-align:center;border-bottom:2px solid var(--border);}
-td{padding:6px 8px;border-bottom:1px solid #eef1f9;text-align:center;color:var(--text);}
-td:first-child{text-align:left;font-weight:600;}
-tr:hover td{background:#f8f9ff;}
-.chip{display:inline-block;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;}
-.chip-ok{background:rgba(82,196,160,.18);color:#1a9970;}
-.chip-warn{background:rgba(245,166,35,.18);color:#c47d0a;}
-.chip-bad{background:rgba(244,127,127,.18);color:#c0392b;}
-/* DROPDOWN */
-select{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:#f8faff;color:var(--text);font-size:13px;margin-bottom:14px;outline:none;}
-select:focus{border-color:var(--accent);}
-/* CHART CONTAINER */
-.chart-box{position:relative;height:260px;}
-.chart-box-sm{position:relative;height:200px;}
-/* ROTATION GRID */
-.rot-grid{overflow-x:auto;}
-.rot-grid table td{min-width:44px;font-size:11px;}
-.rot-cell{background:#eef5ff;border-radius:4px;padding:2px 4px;font-size:10px;font-weight:700;color:#3a5fc8;white-space:nowrap;}
-.rot-cell.none{background:transparent;color:transparent;}
-/* FTE badge */
-.fte-bar{height:6px;border-radius:3px;background:#e0e7ff;margin-top:4px;}
-.fte-fill{height:100%;border-radius:3px;}
-/* COMPARISON */
-.cmp-row{display:grid;grid-template-columns:1fr 70px 70px 70px;gap:4px;align-items:center;padding:6px 0;border-bottom:1px solid #eef1f9;font-size:12px;}
-.cmp-row.hd{font-weight:700;color:var(--text2);border-bottom:2px solid var(--border);}
-.arrow-up{color:#1a9970;}
-.arrow-dn{color:#c0392b;}
-/* Legend */
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
-.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
-.leg-dot{width:10px;height:10px;border-radius:2px;}
-/* Loading */
-#loading{position:fixed;inset:0;background:rgba(240,244,255,.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
+:root{color-scheme:light;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans Thai',Sarabun,sans-serif;background:#f0f4ff;color:#2d3a5e;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(91,141,238,.06)1px,transparent 1px),linear-gradient(90deg,rgba(91,141,238,.06)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.header{background:linear-gradient(135deg,#5b8dee,#4fb3d9);color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;box-shadow:0 2px 12px rgba(91,141,238,.25);}
+.header h1{font-size:1.35rem;font-weight:700;}
+.header .sub{font-size:.82rem;opacity:.85;margin-top:2px;}
+.badge{background:rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:600;}
+.tabs-wrap{position:relative;z-index:10;background:#fff;border-bottom:2px solid #c7d4f5;}
+.tabs{display:flex;max-width:1200px;margin:0 auto;padding:0 20px;}
+.tab{padding:13px 20px;font-size:.92rem;font-weight:600;color:#8a96b8;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;}
+.tab:hover{color:#5b8dee;}
+.tab.active{color:#5b8dee;border-bottom-color:#5b8dee;}
+.content{max-width:1200px;margin:0 auto;padding:24px 20px;position:relative;z-index:10;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+.kpi{background:#fff;border-radius:14px;padding:16px;border:1.5px solid #c7d4f5;box-shadow:0 2px 8px rgba(91,141,238,.07);}
+.kpi .label{font-size:.76rem;color:#8a96b8;font-weight:500;margin-bottom:6px;}
+.kpi .value{font-size:2rem;font-weight:700;line-height:1;}
+.kpi .sub-val{font-size:.75rem;color:#5a6a96;margin-top:4px;}
+.chart-card{background:#fff;border-radius:16px;padding:20px 22px;border:1.5px solid #c7d4f5;box-shadow:0 2px 10px rgba(91,141,238,.07);margin-bottom:22px;}
+.chart-card h3{font-size:.98rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.legend{display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#5a6a96;font-weight:500;}
+.legend-dot{width:12px;height:12px;border-radius:3px;}
+.dropdown-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.dropdown-wrap label{font-weight:600;font-size:.88rem;color:#5a6a96;}
+select{padding:9px 14px;border-radius:10px;border:1.5px solid #c7d4f5;background:#fff;color:#2d3a5e;font-size:.88rem;outline:none;cursor:pointer;font-weight:500;min-width:220px;}
+select:focus{border-color:#5b8dee;}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1.5px solid #c7d4f5;}
+table{width:100%;border-collapse:collapse;font-size:.86rem;}
+thead{background:#e8eeff;}
+th{padding:10px 13px;text-align:left;font-weight:700;color:#5a6a96;font-size:.8rem;white-space:nowrap;}
+td{padding:9px 13px;border-top:1px solid #edf0f8;color:#2d3a5e;}
+tr:hover td{background:#f7f9ff;}
+.badge-sp{background:rgba(143,174,245,.22);color:#3a6ae8;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
+.badge-gp{background:rgba(82,196,160,.2);color:#1a9970;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
+.badge-int{background:rgba(176,127,232,.18);color:#8040c8;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
+.intern-table th,.intern-table td{text-align:center;padding:9px 8px;font-size:.9rem;}
+.intern-table td:first-child,.intern-table th:first-child{text-align:left;padding-left:13px;min-width:170px;}
+.intern-table td:nth-child(2),.intern-table td:nth-child(3){text-align:left;}
+.cell-count{background:rgba(91,141,238,.15);color:#5b8dee;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;}
+.cell-assign{border-radius:5px;padding:2px 7px;font-size:.76rem;font-weight:600;white-space:nowrap;background:rgba(91,141,238,.12);color:#5b8dee;}
+.accordion{margin-bottom:13px;border-radius:14px;overflow:hidden;border:1.5px solid #c7d4f5;}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;background:#fff;cursor:pointer;transition:background .2s;user-select:none;}
+.acc-header:hover{background:#e8eeff;}
+.acc-title{font-weight:700;font-size:.92rem;color:#2d3a5e;}
+.acc-sub{font-size:.78rem;color:#8a96b8;margin-top:2px;}
+.acc-arrow{font-size:1rem;color:#5b8dee;transition:transform .25s;}
+.acc-arrow.open{transform:rotate(180deg);}
+.acc-body{display:none;padding:0 18px 18px;background:#fff;border-top:1px solid #c7d4f5;}
+.acc-body.open{display:block;}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px;}
+.sum-card{background:#e8eeff;border-radius:12px;padding:15px;border:1.5px solid #c7d4f5;}
+.sum-card .s-label{font-size:.76rem;color:#8a96b8;margin-bottom:4px;}
+.sum-card .s-val{font-size:1.55rem;font-weight:700;}
+.alloc-table th{background:#e8eeff;font-size:.84rem;text-align:center;padding:9px 10px;}
+.alloc-table td{text-align:center;font-size:.86rem;padding:9px 10px;}
+.alloc-table td:first-child{text-align:left;font-weight:600;}
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><div style="color:var(--text2);font-size:13px;">กำลังโหลดข้อมูล...</div></div>
-
 <div class="header">
   <div>
-    <h1>🏥 Dashboard แพทย์ สสจ.กาญจนบุรี</h1>
-    <div class="sub">ข้อมูลกำลังคนแพทย์ระดับจังหวัด — อัปเดตจาก Google Drive</div>
+    <h1>🏥 Dashboard ติดตามแพทย์ สสจ.กาญจนบุรี</h1>
+    <div class="sub">ข้อมูล ณ วันที่ 19 พฤษภาคม 2569 · แพทย์รพช. + แพทย์สสจ.xlsx</div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-    <span class="badge" id="updated-badge">⏳ กำลังโหลด...</span>
-    <button class="refresh-btn" onclick="loadData()">🔄 รีเฟรช</button>
+  <div class="badge" id="updateBadge">ข้อมูล 19 พ.ค. 2569</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('t1',this)">📊 จำนวนแพทย์ รพช.</button>
+    <button class="tab" onclick="switchTab('t2',this)">🔄 ตาราง Intern 1</button>
+    <button class="tab" onclick="switchTab('t3',this)">📋 สรุปจัดสรร ปี 69</button>
   </div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab(0)">ภาพรวม รพช.</div>
-  <div class="tab" onclick="showTab(1)">Intern 1 วนรพช.</div>
-  <div class="tab" onclick="showTab(2)">สรุปแพทย์ ปี 68</div>
-  <div class="tab" onclick="showTab(3)">จัดสรรแพทย์ปี 69</div>
-</div>
+<div class="content">
 
 <!-- TAB 1 -->
-<div class="panel active" id="tab0">
-  <div class="window full">
-    <div class="win-title">ภาพรวมแพทย์ รพช. ทุกโรงพยาบาล</div>
-    <div class="kpi-grid" id="kpi1"></div>
+<div id="t1" class="tab-panel active">
+  <div id="kpiRow" class="kpi-row"></div>
+  <div class="chart-card">
+    <h3>📊 จำนวนแพทย์แต่ละ รพ.</h3>
     <div class="legend">
-      <div class="leg-item"><div class="leg-dot" style="background:#5b8dee"></div>แพทย์ปัจจุบัน</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#c7d4f5"></div>กรอบต่ำ</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#8faef5"></div>Intern</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#6dd5b5"></div>Specialist</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#f5c87a"></div>GP</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#8faef5"></div> Specialist</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#52c4a0"></div> ทั่วไป (GP + Intern)</div>
     </div>
-    <div class="chart-box"><canvas id="chart-overview"></canvas></div>
+    <canvas id="barChart" height="270"></canvas>
   </div>
-  <div class="window full">
-    <div class="win-title">ข้อมูลแพทย์รายโรงพยาบาล</div>
-    <select id="hospital-select" onchange="renderHospitalDetail()">
-      <option value="">-- เลือกโรงพยาบาล --</option>
-    </select>
-    <div id="hospital-detail"></div>
+  <div class="chart-card">
+    <h3>👨‍⚕️ รายชื่อแพทย์รายโรงพยาบาล</h3>
+    <div class="dropdown-wrap">
+      <label>เลือกโรงพยาบาล :</label>
+      <select id="hospSelect" onchange="renderDoctorTable()">
+        <option value="" disabled selected>— กรุณาเลือกโรงพยาบาล —</option>
+      </select>
+    </div>
+    <div id="doctorTableWrap" style="display:none;" class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>ชื่อ - นามสกุล</th><th>อายุ</th><th>ประเภท</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="doctorTbody"></tbody>
+      </table>
+    </div>
+    <div id="doctorPlaceholder" class="placeholder-msg" style="text-align:center;padding:30px 0;color:#8a96b8;">กรุณาเลือกโรงพยาบาลเพื่อดูรายชื่อแพทย์</div>
   </div>
 </div>
 
 <!-- TAB 2 -->
-<div class="panel" id="tab1">
-  <div class="window full">
-    <div class="win-title">จำนวน Intern 1 วนรพช. รายเดือน (ปี 69)</div>
-    <div class="rot-grid"><table id="rot-table"></table></div>
+<div id="t2" class="tab-panel">
+  <div class="chart-card">
+    <h3>📅 ตาราง Intern 1 วน รพช. ปี 69</h3>
+    <div class="table-wrap">
+      <table class="intern-table">
+        <thead><tr>
+          <th>โรงพยาบาล</th><th>ผู้ประสาน</th><th>เบอร์โทร</th>
+          <th>พค</th><th>มิย</th><th>กค</th><th>สค</th><th>กย</th>
+          <th>ตค</th><th>พย</th><th>ธค</th><th>มค</th><th>กพ</th><th>มีค</th><th>เมย</th><th>พค(ถัดไป)</th>
+        </tr></thead>
+        <tbody id="internTbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="chart-card">
+    <h3>👩‍⚕️ ตารางรายชื่อ Intern วนรพช.</h3>
+    <div class="table-wrap">
+      <table class="intern-table">
+        <thead><tr>
+          <th>ชื่อ</th>
+          <th>มิย</th><th>กค</th><th>สค</th><th>กย</th>
+          <th>ตค</th><th>พย</th><th>ธค</th><th>มค</th><th>กพ</th>
+          <th>มีค</th><th>เมย</th><th>พค</th><th>มิย</th><th>กค</th><th>สค</th>
+        </tr></thead>
+        <tbody id="internRotateTbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- TAB 3 : สรุปแพทย์ ปี 68 -->
-<div class="panel" id="tab2">
-  <div class="window full">
-    <div class="win-title">ภาพรวมการเคลื่อนไหวแพทย์ ปี 69</div>
-    <div class="kpi-grid" id="kpi-move"></div>
-    <div class="chart-box" style="height:220px;"><canvas id="chart-move"></canvas></div>
+<!-- TAB 3 -->
+<div id="t3" class="tab-panel">
+  <!-- Card 1: สรุปจำนวนแพทย์ปฏิบัติงาน ปี 68 -->
+  <div class="chart-card" style="margin-bottom:16px;">
+    <h3>📋 สรุปจำนวนแพทย์ปฏิบัติงาน ปี 68</h3>
+    <div id="allocSummaryCards" class="summary-grid"></div>
+    <p style="font-size:.8rem;color:#8a96b8;margin-top:6px;">คลิกกล่องย้ายออก / ย้ายเข้าเพื่อดูรายละเอียด</p>
   </div>
-  <div class="window full">
-    <div class="win-title">ย้ายออก – ย้ายเข้า รายโรงพยาบาล</div>
-    <div style="overflow-x:auto;"><table id="move-table"></table></div>
+  <!-- Card 2: จัดสรรแพทย์ ปี 69 (ย้ายมาจาก accordion) -->
+  <div class="chart-card" style="margin-bottom:16px;">
+    <h3>🏥 จัดสรรแพทย์ ปี 69</h3>
+    <div id="allocDetailsWrap"></div>
+  </div>
+  <!-- Accordion 1: สรุปการจัดสรรปี 69 (เปรียบเทียบ before/after) -->
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc('acc1')">
+      <div><div class="acc-title">📊 สรุปการจัดสรรปี 69</div>
+      <div class="acc-sub">เปรียบเทียบจำนวนแพทย์ก่อน–หลังจัดสรร รายโรงพยาบาล</div></div>
+      <div class="acc-arrow" id="arr-acc1">▼</div>
+    </div>
+    <div class="acc-body" id="body-acc1">
+      <div style="padding-top:14px;">
+        <canvas id="compChart" height="300"></canvas>
+        <div style="overflow-x:auto;margin-top:18px;"><div id="compTableWrap"></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- Accordion 2: รายชื่อ Intern 1 -->
+  <div class="accordion">
+    <div class="acc-header" onclick="toggleAcc('acc3')">
+      <div><div class="acc-title">👩‍⚕️ รายชื่อ Intern 1 ปี 69 ทั้งหมด (27 คน)</div>
+      <div class="acc-sub">คลิกเพื่อดูรายชื่อ Intern 1 ที่บรรจุปีงบประมาณ 2569</div></div>
+      <div class="acc-arrow" id="arr-acc3">▼</div>
+    </div>
+    <div class="acc-body" id="body-acc3">
+      <div style="padding-top:14px;overflow-x:auto;"><div id="intern1ListWrap"></div></div>
+    </div>
   </div>
 </div>
 
-<!-- TAB 4 : จัดสรรแพทย์ปี 69 -->
-<div class="panel" id="tab3">
-  <div class="window full">
-    <div class="win-title">การจัดสรรแพทย์ ปี 69 (รายโรงพยาบาล)</div>
-    <div style="overflow-x:auto;"><table id="alloc-table"></table></div>
-  </div>
-  <div class="window full">
-    <div class="win-title">เปรียบเทียบแพทย์ปี 68 vs ปี 69 (หลังจัดสรร)</div>
-    <div class="chart-box"><canvas id="chart-compare"></canvas></div>
-    <div id="cmp-table" style="margin-top:12px;"></div>
-  </div>
-</div>
+</div><!-- content -->
 
 <script>
-// ===================== STATIC DATA (Fallback) =====================
-const HOSPITALS = [
-  {name:'ทองผาภูมิ',        qs:21,ql:17,actual:15,fte:88.24,leave:1,i1:0,i2:3,i3:1,gp:1,sp:10},
-  {name:'สมเด็จพระสังฆราชองค์ที่๑๙',qs:34,ql:28,actual:18,fte:64.29,leave:1,i1:0,i2:2,i3:0,gp:4,sp:12},
-  {name:'บ่อพลอย',           qs:16,ql:13,actual:8, fte:61.54,leave:1,i1:0,i2:5,i3:0,gp:0,sp:3},
-  {name:'เจ้าคุณไพบูลย์พนมทวน',qs:12,ql:10,actual:7, fte:70.00,leave:0,i1:0,i2:0,i3:1,gp:6,sp:0},
-  {name:'ด่านมะขามเตี้ย',    qs:10,ql:8, actual:5, fte:62.50,leave:0,i1:0,i2:2,i3:0,gp:1,sp:0},
-  {name:'ท่ากระดาน',         qs:4, ql:3, actual:2, fte:66.67,leave:0,i1:0,i2:0,i3:0,gp:2,sp:0},
-  {name:'ไทรโยค',            qs:10,ql:9, actual:5, fte:55.56,leave:0,i1:0,i2:0,i3:3,gp:2,sp:0},
-  {name:'เลาขวัญ',           qs:12,ql:10,actual:7, fte:70.00,leave:0,i1:0,i2:0,i3:6,gp:1,sp:0},
-  {name:'สถานพระบารมี',      qs:7, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:0,i3:1,gp:2,sp:1},
-  {name:'สมเด็จพระปิยมหาราชฯ',qs:6,ql:5,actual:3, fte:60.00,leave:0,i1:0,i2:0,i3:0,gp:1,sp:2},
-  {name:'สังขละบุรี',        qs:9, ql:8, actual:5, fte:62.50,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
-  {name:'ห้วยกระเจาฯ',       qs:8, ql:6, actual:4, fte:66.67,leave:0,i1:0,i2:2,i3:0,gp:2,sp:0},
-  {name:'ศุกร์ศิริศรีสวัสดิ์',qs:3,ql:3,actual:2,  fte:66.67,leave:0,i1:0,i2:0,i3:0,gp:2,sp:0},
-  {name:'หนองปรือ',           qs:3, ql:3, actual:3, fte:100.0,leave:0,i1:0,i2:0,i3:2,gp:1,sp:0},
+// ============================================================
+// EMBEDDED DATA — ดึงจาก Google Drive วันที่ 18 พ.ค. 2569
+// ============================================================
+
+const SUMMARY = [
+  {name:'ทองผาภูมิ',            total:15, i1:0, i2:3, i3:1, gp:1,  sp:10},
+  {name:'สมเด็จพระสังฆราชองค์ที่๑๙', total:18, i1:0, i2:2, i3:0, gp:4,  sp:12},
+  {name:'บ่อพลอย',              total:8,  i1:0, i2:5, i3:0, gp:0,  sp:3},
+  {name:'เจ้าคุณไพบูลย์พนมทวน', total:7,  i1:0, i2:0, i3:1, gp:6,  sp:0},
+  {name:'ด่านมะขามเตี้ย',       total:5,  i1:0, i2:4, i3:0, gp:1,  sp:0},
+  {name:'ท่ากระดาน',            total:2,  i1:0, i2:0, i3:0, gp:2,  sp:0},
+  {name:'ไทรโยค',               total:5,  i1:0, i2:0, i3:3, gp:2,  sp:0},
+  {name:'เลาขวัญ',              total:7,  i1:0, i2:0, i3:6, gp:1,  sp:0},
+  {name:'สถานพระบารมี',         total:4,  i1:0, i2:0, i3:1, gp:2,  sp:1},
+  {name:'สมเด็จพระปิยมหาราชรมณียเขต', total:3, i1:0, i2:0, i3:0, gp:1, sp:2},
+  {name:'สังขละบุรี',           total:5,  i1:0, i2:2, i3:0, gp:3,  sp:0},
+  {name:'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา', total:5, i1:0, i2:3, i3:0, gp:2, sp:0},
+  {name:'ศุกร์ศิริศรีสวัสดิ์',  total:2,  i1:0, i2:0, i3:0, gp:2,  sp:0},
+  {name:'หนองปรือ',             total:3,  i1:0, i2:0, i3:2, gp:1,  sp:0},
 ];
 
-const DOCTOR_LISTS = {
-  'ทองผาภูมิ':[
-    {name:'พญ. นวลจันทร์ เวชสุวรรณมณี',age:53,type:'Specialist',pos:'ผอ.',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. จุฑากาญจน์ จรัสแสนประเสริฐ',age:47,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. เอกวิฑูรย์ บุญศิริปิยโชค',age:47,type:'Specialist',pos:'แพทย์ประจำ',specialty:'วิสัญญีวิทยา',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. กมลชนก ไชยลา',age:42,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. สิรี ลิ้มเทียมเจริญ',age:43,type:'Specialist',pos:'แพทย์ประจำ',specialty:'สูติ-นรีเวช',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. มลฤดี รุ่งแสงมนูญ',age:43,type:'Specialist',pos:'แพทย์ประจำ',specialty:'อายุรศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. สุทนต์ พิมพ์อ่อน',age:45,type:'Specialist',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ครอบครัว',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. บุญฤทธิ์ ทองพิสิฐสมบัติ',age:38,type:'Specialist',pos:'แพทย์ประจำ',specialty:'ศัลยศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ชฎาภรณ์ ต๋องเรียน',age:37,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. แทนเทพ หัตถ์สุวรรณกุล',age:33,type:'Specialist',pos:'แพทย์ประจำ',specialty:'Orthopedic',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ปิยะวดี วังมะนาว',age:32,type:'Specialist',pos:'แพทย์ประจำ',specialty:'สูติ-นรีเวช',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. หรรษธร ศรีกุศลานุกูล',age:26,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+const DOCTOR_DATA = {
+  'ทองผาภูมิ': [
+    {name:'พญ. นวลจันทร์ เวชสุวรรณมณี',age:'53',type:'Specialist',note:'กุมารเวชศาสตร์ (ผอ.)'},
+    {name:'พญ. จุฑากาญจน์ จรัสแสนประเสริฐ',age:'47',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'นพ. เอกวิฑูรย์ บุญศิริปิยโชค',age:'47',type:'Specialist',note:'วิสัญญีวิทยา'},
+    {name:'พญ. สิรี ลิ้มเทียมเจริญ',age:'43',type:'Specialist',note:'สูติศาสตร์-นรีเวชวิทยา'},
+    {name:'พญ. มลฤดี รุ่งแสงมนูญ',age:'43',type:'Specialist',note:'อายุรศาสตร์'},
+    {name:'นพ.สุทนต์ พิมพ์อ่อน',age:'45',type:'Specialist',note:'เวชศาสตร์ครอบครัว'},
+    {name:'นพ. บุญฤทธิ์ ทองพิสิฐสมบัติ',age:'38',type:'Specialist',note:'ศัลยศาสตร์'},
+    {name:'พญ. ชฎาภรณ์ ต๋องเรียน',age:'37',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'นพ. แทนเทพ หัตถ์สุวรรณกุล',age:'33',type:'Specialist',note:'Orthopedic'},
+    {name:'พญ.ปิยะวดี วังมะนาว',age:'32',type:'Specialist',note:'สูติศาสตร์-นรีเวชวิทยา'},
+    {name:'นพ. กมลชนก ไชยลา',age:'42',type:'GP',note:''},
+    {name:'พญ. หรรษธร ศรีกุศลานุกูล',age:'26',type:'Intern 3',note:''},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
   ],
-  'สมเด็จพระสังฆราชองค์ที่๑๙':[
-    {name:'นพ. สมชาย ไวทิตานันท์',age:54,type:'Specialist',pos:'ผอ.',specialty:'เวชศาสตร์ครอบครัว',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ปิ่นอภัย บุญศรีโรจน์',age:58,type:'Specialist',pos:'แพทย์ประจำ',specialty:'จักษุวิทยา',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ณรงค์ ธนกิจวรบูลย์',age:53,type:'Specialist',pos:'แพทย์ประจำ',specialty:'สูติ-นรีเวช',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. โอภาส อัศวโรจน์พงษ์',age:36,type:'GP',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ป้องกัน',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. นฤมล ตั้งกิจจาวิสุทธิ์',age:45,type:'Specialist',pos:'แพทย์ประจำ',specialty:'อายุรศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ธีรพงศ์ เหลืองอารีพร',age:43,type:'Specialist',pos:'แพทย์ประจำ',specialty:'ศัลยศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. บงกช เจริญลาภสวัสดี',age:37,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ณัฐกานต์ สังวาลย์',age:36,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ชัยณรงค์ กองวัฒนานุกูล',age:35,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. สิริมา พวงแก้ว',age:34,type:'Specialist',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ครอบครัว',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. นัฏฐา จันทรวรกาญจน์',age:34,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. กฤศณัฏฐ์ เลิศอัศววิวัฒน์',age:30,type:'Specialist',pos:'แพทย์ประจำ',specialty:'ออร์โธปิดิกส์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. อรุชา วงศ์พีรกุล',age:33,type:'Specialist',pos:'แพทย์ประจำ',specialty:'กุมารเวชศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. อดิเทพ รุจิพรพงษ์',age:30,type:'Specialist',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ฉุกเฉิน',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ณิชารีย์ นิมิตรนิวัฒน์',age:26,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ศุภณัฐ รัตนะสุภาพรศักดิ์',age:27,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'สมเด็จพระสังฆราชองค์ที่๑๙': [
+    {name:'นพ. สมชาย ไวทิตานันท์',age:'54',type:'Specialist',note:'เวชศาสตร์ครอบครัว (ผอ.)'},
+    {name:'นพ. ปิ่นอภัย บุญศรีโรจน์',age:'58',type:'Specialist',note:'จักษุวิทยา'},
+    {name:'นพ. ณรงค์ ธนกิจวรบูลย์',age:'53',type:'Specialist',note:'สูติศาสตร์-นรีเวชวิทยา'},
+    {name:'พญ. นฤมล ตั้งกิจจาวิสุทธิ์',age:'45',type:'Specialist',note:'อายุรศาสตร์'},
+    {name:'นพ. ธีรพงศ์ เหลืองอารีพร',age:'43',type:'Specialist',note:'ศัลยศาสตร์'},
+    {name:'พญ. บงกช เจริญลาภสวัสดี',age:'37',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'พญ. ณัฐกานต์ สังวาลย์',age:'36',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'พญ.สิริมา พวงแก้ว',age:'34',type:'Specialist',note:'เวชศาสตร์ครอบครัว'},
+    {name:'พญ. นัฏฐา จันทรวรกาญจน์',age:'34',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'นพ. กฤศณัฏฐ์ เลิศอัศววิวัฒน์',age:'30',type:'Specialist',note:'ออร์โธปิดิกส์'},
+    {name:'นพ. อรุชา วงศ์พีรกุล',age:'33',type:'Specialist',note:'กุมารเวชศาสตร์'},
+    {name:'นพ.อดิเทพ รุจิพรพงษ์',age:'30',type:'Specialist',note:'เวชศาสตร์ฉุกเฉิน'},
+    {name:'นพ. โอภาส อัศวโรจน์พงษ์',age:'36',type:'GP',note:'เวชศาสตร์ป้องกัน'},
+    {name:'นพ. ชัยณรงค์ กองวัฒนานุกูล',age:'35',type:'GP',note:''},
+    {name:'พญ. ณิชารีย์ นิมิตรนิวัฒน์',age:'26',type:'GP',note:''},
+    {name:'นพ. ศุภณัฐ รัตนะสุภาพรศักดิ์',age:'27',type:'GP',note:''},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
   ],
-  'บ่อพลอย':[
-    {name:'นพ. ไชยวัฒน์ เพชรพรรณงาม',age:39,type:'Specialist',pos:'ผอ.',specialty:'ศัลยศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. แสงอุษา มารูปหมอก',age:32,type:'Specialist',pos:'แพทย์ประจำ',specialty:'อายุรศาสตร์',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ณัฐพล ธรธนดล',age:33,type:'Specialist',pos:'แพทย์ประจำ',specialty:'fam med',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1 จบช้า)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'บ่อพลอย': [
+    {name:'นพ. ไชยวัฒน์ เพชรพรรณงาม',age:'39',type:'Specialist',note:'ศัลยศาสตร์ (ผอ.)'},
+    {name:'พญ. แสงอุษา มารูปหมอก',age:'32',type:'Specialist',note:'อายุรศาสตร์'},
+    {name:'นพ.ณัฐพล ธรธนดล',age:'33',type:'Specialist',note:'fam med'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'จบช้า'},
   ],
-  'เจ้าคุณไพบูลย์พนมทวน':[
-    {name:'นพ. ภัทราวุธ โชคประกอบกิจ',age:48,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ประนอมสม แสนหอม',age:57,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. สุพัฒน์ จินดารัตน์',age:59,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ศิริมิตร โรจน์ไพศาลกิจ',age:48,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. สุวิจักขณ์ อุ่นทวีทรัพย์',age:27,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'รับย้ายจากศรีสะเกษ (รอรายชื่อ)',age:'-',type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. รัชดา ทิพยธรกุล',age:31,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'รับย้ายจากรพ.ด่านฯ'},
+  'เจ้าคุณไพบูลย์พนมทวน': [
+    {name:'นพ. ภัทราวุธ โชคประกอบกิจ',age:'48',type:'GP',note:'(ผอ.)'},
+    {name:'นพ. ประนอมสม แสนหอม',age:'57',type:'GP',note:''},
+    {name:'นพ. สุพัฒน์ จินดารัตน์',age:'59',type:'GP',note:''},
+    {name:'นพ. ศิริมิตร โรจน์ไพศาลกิจ',age:'48',type:'GP',note:''},
+    {name:'นพ. สุวิจักขณ์ อุ่นทวีทรัพย์',age:'27',type:'GP',note:''},
+    {name:'รับย้ายจากศรีสะเกษ',age:'-',type:'GP',note:'รอรายชื่อ'},
+    {name:'พญ.รัชดา ทิพยธรกุล',age:'31',type:'Intern 3',note:'CA Thyroid'},
   ],
-  'ด่านมะขามเตี้ย':[
-    {name:'นพ. ชัช จันทร์ขำ',age:54,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1 เอกชน)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1 เอกชน)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1 จบช้า)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'ด่านมะขามเตี้ย': [
+    {name:'นพ. ชัช จันทร์ขำ',age:'54',type:'GP',note:'HT (ผอ.)'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'เอกชน'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'เอกชน'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'จบช้า'},
   ],
-  'ท่ากระดาน':[
-    {name:'นพ. พิสุทธิ์ จรุงเรืองทรัพย์',age:31,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ลักษมณ มั่นคง',age:32,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'ท่ากระดาน': [
+    {name:'นพ.พิสุทธิ์ จรุงเรืองทรัพย์',age:'31',type:'GP',note:'(ผอ.)'},
+    {name:'พญ.ลักษมณ มั่นคง',age:'32',type:'GP',note:''},
   ],
-  'ไทรโยค':[
-    {name:'นพ. จิรภัทร พุ่มฉายา',age:44,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. กานต์ กมลนรเทพ',age:39,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ณัฐธวัช งามอุโฆษ',age:25,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. นภัสวิสาข์ สุธรรมบุตร',age:25,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นายวริทธิ์ธร ประภัสสรางกูร',age:29,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'ไทรโยค': [
+    {name:'นพ. จิรภัทร พุ่มฉายา',age:'44',type:'GP',note:'AF,Hep B (ผอ.)'},
+    {name:'นพ. กานต์ กมลนรเทพ',age:'39',type:'GP',note:'DM,HT,DLP'},
+    {name:'นพ.ณัฐธวัช งามอุโฆษ',age:'25',type:'Intern 3',note:''},
+    {name:'พญ.นภัสวิสาข์ สุธรรมบุตร',age:'25',type:'Intern 3',note:''},
+    {name:'นายวริทธิ์ธร ประภัสสรางกูล',age:'29',type:'Intern 3',note:''},
   ],
-  'เลาขวัญ':[
-    {name:'นพ. จักรพันธ์ จันทร์สว่าง',age:39,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. วิชยา เนตรมนต์ประภา',age:25,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นางสาวศศิธร ไพศาลภาณุมาศ',age:28,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นางสาวศิริลักษณ์ อ่อนทรัพย์',age:30,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นายกำชัย เขมะจิตพิชิต',age:26,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'รับย้ายบ่อพลอย (รอรายชื่อ)',age:'-',type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'รับย้ายบ่อพลอย (รอรายชื่อ)',age:'-',type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'เลาขวัญ': [
+    {name:'นพ. จักรพันธ์ จันทร์สว่าง',age:'39',type:'GP',note:'(ผอ.)'},
+    {name:'พญ.วิชยา เนตรมนต์ประภา',age:'25',type:'Intern 3',note:''},
+    {name:'นางสาวศศิธร ไพศาลภาณุมาศ',age:'28',type:'Intern 3',note:''},
+    {name:'นางสาวศิริลักษณ์ อ่อนทรัพย์',age:'30',type:'Intern 3',note:''},
+    {name:'นายกำชัย เขมะจิตพิชิต',age:'26',type:'Intern 3',note:''},
+    {name:'รับย้ายบ่อพลอย',age:'-',type:'Intern 3',note:'รอรายชื่อ'},
+    {name:'รับย้ายบ่อพลอย',age:'-',type:'Intern 3',note:'รอรายชื่อ'},
   ],
-  'สถานพระบารมี':[
-    {name:'นพ. ชนาธิป ไชยเหล็ก',age:35,type:'Specialist',pos:'ผอ.',specialty:'ระบาดวิทยา',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. พัทธนะ ไชยลา',age:33,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'น.ส. ปิยธิดา ศรีวะสุทธิ์',age:29,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. สรวิชญ์ แสงทอง',age:26,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'สถานพระบารมี': [
+    {name:'นพ. ชนาธิป ไชยเหล็ก',age:'35',type:'Specialist',note:'ระบาดวิทยา (ผอ.)'},
+    {name:'นพ. พัทธนะ ไชยลา',age:'33',type:'GP',note:''},
+    {name:'น.ส.ปิยธิดา ศรีวะสุทธิ์',age:'29',type:'GP',note:''},
+    {name:'นพ. สรวิชญ์ แสงทอง',age:'26',type:'Intern 3',note:''},
   ],
-  'สมเด็จพระปิยมหาราชฯ':[
-    {name:'นพ. เอกสิษฐ์ ภูพิชฏาณัฏฐ์',age:45,type:'Specialist',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ครอบครัว',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. วีระภรณ์ วิวัฒนาเกษมสุข',age:44,type:'Specialist',pos:'แพทย์ประจำ',specialty:'เวชศาสตร์ครอบครัว',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. ภิญาดา เพ็ชรชาลี',age:27,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'สมเด็จพระปิยมหาราชรมณียเขต': [
+    {name:'นพ. เอกสิษฐ์ ภูพิชฏาณัฏฐ์',age:'45',type:'Specialist',note:'เวชศาสตร์ครอบครัว'},
+    {name:'พญ. วีระภรณ์ วิวัฒนาเกษมสุข',age:'44',type:'Specialist',note:'เวชศาสตร์ครอบครัว'},
+    {name:'พญ. ภิญาดา เพ็ชรชาลี',age:'27',type:'GP',note:''},
   ],
-  'สังขละบุรี':[
-    {name:'นพ. จิรวัฒน์ วงษ์สวัสดิ์',age:30,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. อภิรักษ์ เอี้ยวสุวรรณ',age:36,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'รับย้ายจากสระแก้ว (รอรายชื่อ)',age:'-',type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'สังขละบุรี': [
+    {name:'นพ. จิรวัฒน์ วงษ์สวัสดิ์',age:'30',type:'GP',note:'(ผอ.)'},
+    {name:'นพ. อภิรักษ์ เอี้ยวสุวรรณ',age:'36',type:'GP',note:''},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'รับย้ายจากสระแก้ว',age:'-',type:'GP',note:'รอรายชื่อ'},
   ],
-  'ห้วยกระเจาฯ':[
-    {name:'นพ. ศานติ์ ศานติวรกุล',age:31,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'พญ. เมชานันท์ วัฒนเกตุกุล',age:31,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'(รอรายชื่อ intern1)',age:'-',type:'Intern 2',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา': [
+    {name:'นพ. ศานติ์ ศานติวรกุล',age:'31',type:'GP',note:'(ผอ.)'},
+    {name:'พญ. เมชานันท์ วัฒนเกตุกุล',age:'31',type:'GP',note:''},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'intern 1 ปี 69'},
+    {name:'Intern 2 (รอรายชื่อ)',age:'-',type:'Intern 2',note:'จบช้า'},
   ],
-  'ศุกร์ศิริศรีสวัสดิ์':[
-    {name:'นพ. สุทธิกร ชูจันทร์',age:38,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ธนกร เบญจนโรดม',age:29,type:'GP',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'ศุกร์ศิริศรีสวัสดิ์': [
+    {name:'นพ. สุทธิกร ชูจันทร์',age:'38',type:'GP',note:'(ผอ.)'},
+    {name:'นพ. ธนกร เบญจนโรดม',age:'29',type:'GP',note:''},
   ],
-  'หนองปรือ':[
-    {name:'นพ. กฤษณะ หงษาครประเสริฐ',age:44,type:'GP',pos:'ผอ.',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'นพ. ฐิติกร ชาตะวะสุ',age:25,type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
-    {name:'รับย้ายสังขละ (รอรายชื่อ)',age:'-',type:'Intern 3',pos:'แพทย์ประจำ',specialty:'-',plan:'ปฏิบัติงานต่อ'},
+  'หนองปรือ': [
+    {name:'นพ. กฤษณะ หงษาครประเสริฐ',age:'44',type:'GP',note:'(ผอ.)'},
+    {name:'นพ.ฐิติกร ชาตะวะสุ',age:'25',type:'Intern 3',note:''},
+    {name:'รับย้ายสังขละ',age:'-',type:'Intern 3',note:'รอรายชื่อ'},
   ],
 };
 
-// Tab 2 rotation data
-const MONTHS = ['พค','มิย','กค','สค','กย','ตค','พย','ธค','มค','กพ','มีค','เมย'];
-const ROT_HOSPITALS = [
-  {name:'ทองผาภูมิ',   coord:'ผอ.นุ้ย',   tel:'089-141-6565', counts:[2,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'สมเด็จ19ฯ',   coord:'คุณมด',     tel:'062-558-5698', counts:[0,1,1,0,0,0,0,0,0,0,0,0]},
-  {name:'บ่อพลอย',     coord:'คุณบูม',    tel:'080-807-4434', counts:[0,1,1,0,0,0,0,0,0,0,0,0]},
-  {name:'เจ้าคุณไพบูลย์',coord:'คุณปัทมาวดี',tel:'081-736-9841',counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'ด่านมะขามเตี้ย',coord:'คุณลัดดาวัลย์',tel:'092-250-8599',counts:[0,1,1,0,0,0,0,0,0,0,0,0]},
-  {name:'ท่ากระดาน',   coord:'คุณมด',     tel:'098-965-2370', counts:[0,1,0,0,0,0,0,0,0,0,0,0]},
-  {name:'ไทรโยค',      coord:'คุณฝน',     tel:'081-293-8811', counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'เลาขวัญ',     coord:'คุณสุดากาญจน์',tel:'098-468-5091',counts:[1,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'สถานพระบารมี', coord:'ผอ.ต้น',    tel:'080-189-8925', counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'สมเด็จปิยฯ',  coord:'ผอ.จุ๊',    tel:'098-905-6450', counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'สังขละบุรี',   coord:'คุณเอ',     tel:'094-349-9247', counts:[1,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'ห้วยกระเจาฯ', coord:'พญ.เมชานันท์',tel:'065-442-6293',counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'ศุกร์ศิริฯ',  coord:'ผอ.เอ็กซ์',  tel:'089-229-7655', counts:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:'หนองปรือ',    coord:'ผอ.บาส',    tel:'081-914-8642', counts:[1,0,0,0,0,0,0,0,0,0,0,0]},
+// Intern monthly (Tab2 table1) — months: พค มิย กค สค กย ตค พย ธค มค กพ มีค เมย พค(next)
+const INTERN_MONTHLY = [
+  {hosp:'ทองผาภูมิ',coord:'ผอ.นุ้ย',tel:'089-141-6565',months:['2','','','','','','','','','','','','']},
+  {hosp:'สมเด็จพระสังฆราชองค์ที่๑๙',coord:'คุณมด',tel:'062-558-5698',months:['','1','1','','','','','','','','','','']},
+  {hosp:'บ่อพลอย',coord:'คุณบูม',tel:'080-807-4434',months:['','1','1','','','','','','','','','','']},
+  {hosp:'เจ้าคุณไพบูลย์พนมทวน',coord:'คุณปัทมาวดี',tel:'081-736-9841',months:['','','','','','','','','','','','','']},
+  {hosp:'ด่านมะขามเตี้ย',coord:'คุณลัดดาวัลย์',tel:'092-250-8599',months:['','1','1','','','','','','','','','','']},
+  {hosp:'ท่ากระดาน',coord:'คุณมด',tel:'098-965-2370',months:['','1','','','','','','','','','','','']},
+  {hosp:'ไทรโยค',coord:'คุณฝน',tel:'081-293-8811',months:['','','','','','','','','','','','','']},
+  {hosp:'เลาขวัญ',coord:'คุณสุดากาญจน์',tel:'098-468-5091',months:['1','','','','','','','','','','','','']},
+  {hosp:'สถานพระบารมี',coord:'ผอ.ต้น',tel:'080-189-8925',months:['','','','','','','','','','','','','']},
+  {hosp:'สมเด็จพระปิยมหาราชรมณียเขต',coord:'ผอ.จุ๊',tel:'098-905-6450',months:['','','','','','','','','','','','','']},
+  {hosp:'สังขละบุรี',coord:'คุณเอ',tel:'094-349-9247',months:['1','','','','','','','','','','','','']},
+  {hosp:'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา',coord:'พญ.เมชานันท์',tel:'065-442-6293',months:['','','','','','','','','','','','','']},
+  {hosp:'ศุกร์ศิริศรีสวัสดิ์',coord:'ผอ.เอ็กซ์',tel:'089-229-7655',months:['','','','','','','','','','','','','']},
+  {hosp:'หนองปรือ',coord:'ผอ.บาส',tel:'081-914-8642',months:['1','','','','','','','','','','','','']},
 ];
 
-// Individual intern schedule (month index 0=พค...11=เมย)
-const INTERN_SCHEDULE = [
-  {name:'พัทธนันท์',   rota:['','','','','ทผภ','ทผภ','','','','','','']},
-  {name:'จณิสตา',      rota:['','','','','','','','ทผภ','ทผภ','','','']},
-  {name:'ภัทราวรรณ',  rota:['','','','','หนองปรือ','หนองปรือ','','','','','','']},
-  {name:'อภิชญา',     rota:['','','','','','ทผภ','ทผภ','','','','','']},
-  {name:'รสิกา',      rota:['','','ทผภ','ทผภ','','','','','','','','']},
-  {name:'ปรมาภรณ์',   rota:['','','','','สังขละ','สังขละ','','','','','','']},
-  {name:'จีรภาส',     rota:['','','','','','','','','','ทผภ','ทผภ','']},
-  {name:'พรพรรณทอง',  rota:['','','สค=หนองปรือ','หนองปรือ','','','','','','','','']},
-  {name:'รินรดา',     rota:['','','','','','','','','','หนองปรือ','หนองปรือ','']},
-  {name:'ภัทรวรรณ',   rota:['','','เลาขวัญ','สังขละ','','','','','','','','']},
-  {name:'อินทราณี',   rota:['','','','','','','','หนองปรือ','หนองปรือ','','','']},
-  {name:'ณัฐชนน',     rota:['','','','','','','','','','สังขละ','สังขละ','']},
-  {name:'ศิริชัย',    rota:['','','','','เลาขวัญ','เลาขวัญ','','','','','','']},
-  {name:'สรวิศ',      rota:['','','','','','หนองปรือ','หนองปรือ','','','','','']},
-  {name:'วีรกุล',     rota:['','','','','','','','สังขละ','สังขละ','','','']},
-  {name:'รักษิณา',    rota:['','','','','','สังขละ','สังขละ','','','','','']},
-  {name:'มะการักษ์A', rota:['','เลาขวัญ','เลาขวัญ','ทผภ','','','','','','','','']},
-  {name:'มะการักษ์B', rota:['','','ด่านฯ','ด่านฯ','','','','','','เลาขวัญ','เลาขวัญ','']},
-  {name:'พหล A',      rota:['','','ทผภ','','','','','','','','','']},
-  {name:'พหล B',      rota:['','','หนองปรือ','','','','','','','','','']},
-  {name:'พหล C',      rota:['','','เลาขวัญ','สังขละ','','','','','','','','']},
-  {name:'พหล D',      rota:['','','','','เลาขวัญ','เลาขวัญ','','','','','','']},
+// Intern rotate (Tab2 table2) — months: มิย กค สค กย ตค พย ธค มค กพ มีค เมย พค มิย กค สค
+const INTERN_ROTATE = [
+  {name:'พัทธนันท์',   m:['','','','','ทผภ','ทผภ','','','','','','','','','']},
+  {name:'จณิสตา',      m:['','','','','','','','ทผภ','ทผภ','','','','','','']},
+  {name:'ภัทราวรรณ',   m:['','','','','หนองปรือ','หนองปรือ','','','','','','','','','']},
+  {name:'อภิชญา',      m:['','','','','','','ทผภ','ทผภ','','','','','','','']},
+  {name:'รสิกา',       m:['','','ทผภ','ทผภ','','','','','','','','','','','']},
+  {name:'ปรมาภรณ์',    m:['','','','','สังขละ','สังขละ','','','','','','','','','']},
+  {name:'จีรมาส',      m:['','','','','','','','','','ทผภ','ทผภ','','','','']},
+  {name:'พรพรรณทอง',   m:['','หนองปรือ','หนองปรือ','','','','','','','','','','','','']},
+  {name:'รินรดา',      m:['','','','','','','','','','หนองปรือ','หนองปรือ','','','','']},
+  {name:'ภัทรวรรณ',    m:['','เลาขวัญ','สังขละ','','','','','','','','','','','','']},
+  {name:'อินทราณี',    m:['','','','','','','','หนองปรือ','หนองปรือ','','','','','','']},
+  {name:'ณัฐชนน',      m:['','','','','','','','','','สังขละ','สังขละ','','','','']},
+  {name:'ศิริชัย',     m:['','','','','เลาขวัญ','เลาขวัญ','','','','','','','','','']},
+  {name:'สรวิศ',       m:['','','','','','','หนองปรือ','หนองปรือ','','','','','','','']},
+  {name:'วีรกุล',      m:['','','','','','','','สังขละ','สังขละ','','','','','','']},
+  {name:'รักษิณา',     m:['','','','','','','สังขละ','สังขละ','','','','','','','']},
+  {name:'แสนดี',       m:['','','','','','','','','','','','','บ่อพลอย','บ่อพลอย','']},
+  {name:'ทวีวัฒน์',    m:['','','','','','','','','','','','','ท่าม่วง','ท่าม่วง','']},
+  {name:'มะการักษ์ 1', m:['','เลาขวัญ','เลาขวัญ','','','','','','','','','','','','']},
+  {name:'มะการักษ์ 2', m:['','','ด่านฯ','ด่านฯ','','','','','','','','','','','']},
+  {name:'มะการักษ์ 3', m:['','','','ทผภ','ทผภ','','','','','','','','','','']},
+  {name:'มะการักษ์ 4', m:['','','','','','ทผภ','ทผภ','','','','','','','','']},
+  {name:'มะการักษ์ 5', m:['','','','','','','','ทผภ','','','','','ท่ากระดาน','','']},
+  {name:'มะการักษ์ 6', m:['','','','','','','','','ทผภ','ทผภ','','','','','']},
+  {name:'มะการักษ์ 7', m:['','','','','','','','','','','ทผภ','ทผภ','','','']},
+  {name:'มะการักษ์ 8', m:['','','','','','','','','','','เลาขวัญ','เลาขวัญ','','','']},
+  {name:'มะการักษ์ 9', m:['','','','','','','','','','','','','ด่านฯ','ด่านฯ','']},
 ];
 
-// Tab 3: สรุปข้อมูลแพทย์ ปี68 — ย้ายออก/ย้ายเข้า
-// columns: name, total68, i1,i2,i3,gp,sp, out{gp_in,sp_in,gp_out,sp_out,gp_study,sp_study,gp_quit,sp_quit,total}, in{gp_in,sp_in,gp_other,sp_other,graduate,total}, remain
-const MOVE_DATA = [
-  {name:'ทองผาภูมิ',       t68:20,i1:2,i2:1,i3:2,gp:1,sp:14, out:{gp_in:0,sp_in:3,gp_out:0,sp_out:0,gp_study:2,sp_study:1,gp_quit:0,sp_quit:0,total:6},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:2,total:2},  remain:14},
-  {name:'สมเด็จ19ฯ',       t68:19,i1:0,i2:0,i3:4,gp:3,sp:12, out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:3,sp_study:0,gp_quit:0,sp_quit:0,total:3},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:1,total:1},  remain:17},
-  {name:'บ่อพลอย',         t68:9, i1:0,i2:4,i3:0,gp:0,sp:5,  out:{gp_in:2,sp_in:1,gp_out:0,sp_out:1,gp_study:2,sp_study:0,gp_quit:0,sp_quit:0,total:6},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:3},
-  {name:'เจ้าคุณไพบูลย์',  t68:7, i1:0,i2:0,i3:3,gp:4,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:2,sp_study:0,gp_quit:0,sp_quit:0,total:2},  inp:{gp_in:1,sp_in:0,gp_other:1,sp_other:0,grad:0,total:2},  remain:7},
-  {name:'ด่านมะขามเตี้ย',  t68:5, i1:0,i2:1,i3:2,gp:2,sp:0,  out:{gp_in:1,sp_in:0,gp_out:1,sp_out:0,gp_study:2,sp_study:0,gp_quit:0,sp_quit:0,total:4},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:1},
-  {name:'ท่ากระดาน',       t68:3, i1:0,i2:0,i3:2,gp:1,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:1,sp_study:0,gp_quit:0,sp_quit:0,total:1},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:2},
-  {name:'ไทรโยค',          t68:6, i1:0,i2:4,i3:0,gp:2,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:1,sp_study:0,gp_quit:0,sp_quit:0,total:1},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:5},
-  {name:'เลาขวัญ',         t68:6, i1:0,i2:5,i3:0,gp:1,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:1,sp_study:0,gp_quit:0,sp_quit:0,total:1},  inp:{gp_in:2,sp_in:0,gp_other:0,sp_other:0,grad:0,total:2},  remain:7},
-  {name:'สถานพระบารมี',    t68:4, i1:0,i2:1,i3:1,gp:1,sp:1,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:0,sp_study:0,gp_quit:0,sp_quit:0,total:0},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:4},
-  {name:'สมเด็จปิยฯ',      t68:3, i1:0,i2:0,i3:1,gp:0,sp:2,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:0,sp_study:0,gp_quit:0,sp_quit:0,total:0},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:3},
-  {name:'สังขละบุรี',      t68:6, i1:1,i2:1,i3:1,gp:3,sp:0,  out:{gp_in:1,sp_in:0,gp_out:0,sp_out:0,gp_study:2,sp_study:0,gp_quit:0,sp_quit:0,total:3},  inp:{gp_in:0,sp_in:0,gp_other:1,sp_other:0,grad:0,total:1},  remain:3},
-  {name:'ห้วยกระเจาฯ',     t68:5, i1:0,i2:0,i3:2,gp:3,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:3,sp_study:0,gp_quit:0,sp_quit:0,total:3},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:2},
-  {name:'ศุกร์ศิริฯ',      t68:2, i1:0,i2:0,i3:0,gp:2,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:0,sp_study:0,gp_quit:0,sp_quit:0,total:0},  inp:{gp_in:0,sp_in:0,gp_other:0,sp_other:0,grad:0,total:0},  remain:2},
-  {name:'หนองปรือ',        t68:4, i1:1,i2:2,i3:0,gp:1,sp:0,  out:{gp_in:0,sp_in:0,gp_out:0,sp_out:0,gp_study:1,sp_study:0,gp_quit:0,sp_quit:0,total:1},  inp:{gp_in:1,sp_in:0,gp_other:0,sp_other:0,grad:0,total:1},  remain:3},
+// Intern 1 list
+const INTERN1_LIST = [
+  {name:'นางสาวจณิสตา ใจแก้ว',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวปรมาภรณ์ อภิธรรมบัณฑิต',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวพัทธนันท์ ศรีรัตนธรรม',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวภัทราวรรณ พรานขุน',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวรสิกา วิจิตรศิริโชติ',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวอภิชญา พิทักษ์ชื่น',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นายวีรกุล จิตเจริญ',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นายสรวิศ สาฆ้อง',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวรักษิณา โปษณกุล',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นายศิริชัย อาภรณ์ศิริพงษ์',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวรินรดา เฉลิมกุล',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวภัทรวรรณ บุญชู',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นางสาวอินทราณี ใจห้าว',date:'19 พ.ค. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern 1 วันที่ 31 พ.ค. 2569'},
+  {name:'นายวัชรพงษ์ รัตนะ',date:'19 พ.ค. 68',org:'มะการักษ์',status:'ไม่ออกรพช.',note:'fix fammed'},
+  {name:'นายปริญญา ไกรเลิศรัตน์',date:'19 พ.ค. 68',org:'มะการักษ์',status:'ไม่ออกรพช.',note:''},
+  {name:'นายภัทรพล ทองปลาเค้า',date:'19 พ.ค. 68',org:'มะการักษ์',status:'ไม่ออกรพช.',note:''},
+  {name:'นายนนท์ ไพศาลธนวัฒน์',date:'19 พ.ค. 68',org:'มะการักษ์',status:'ไม่ออกรพช.',note:''},
+  {name:'นางสาวแสนดี แสนศรี',date:'4 ก.ย. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern1 วันที่ 31 ส.ค. 2569'},
+  {name:'นายทวีวัฒน์ จงเพิ่มวัฒนะผล',date:'4 ก.ย. 68',org:'พหลฯ',status:'ปฏิบัติงานต่อ',note:'จบ Intern1 31 ส.ค. 2569'},
+  {name:'นางสาวณิชณัฐ รัตนาวิทย์',date:'4 ก.ย. 68',org:'มะการักษ์',status:'',note:''},
+  {name:'นางสาวกชวรรณ อุดมพาณิชวงศ์',date:'4 ก.ย. 68',org:'มะการักษ์',status:'',note:''},
+  {name:'นายจีรมาส ชุติมาสกุล',date:'-',org:'พหลฯ',status:'ฝากฝึก',note:''},
+  {name:'นายณัฐชนน พงษธา',date:'-',org:'พหลฯ',status:'ฝากฝึก',note:''},
+  {name:'นางสาวพรพรรณทอง เติมธีรพร',date:'-',org:'พหลฯ',status:'ฝากฝึก',note:''},
+  {name:'นายชญานนท์ ลือชาพุฒิพร',date:'-',org:'มะการักษ์',status:'ฝากฝึก',note:''},
+  {name:'นายธีรัตม์ สรรวัฒน์',date:'-',org:'มะการักษ์',status:'ฝากฝึก',note:''},
+  {name:'นายภาคิน บุญล้อม',date:'-',org:'มะการักษ์',status:'ฝากฝึก',note:''},
 ];
 
-// Tab 4: จัดสรรแพทย์ปี 69
-// columns: name, qs, ql, t68(รวมi1), gp68, sp68, fte68%, remain68, gp_remain, sp_remain, alloc_gp, alloc_priv, alloc_late, alloc_i1_70, t69_gp, t69_sp, fte69_low%, fte69_high%
-const ALLOC_DATA = [
-  // alloc_gp=col K (intern69), alloc_priv=col L (เอกชน), alloc_late=col M (จบช้า), alloc_intern70=col N, t69_total=col O
-  {name:'ทองผาภูมิ',       qs:21,ql:17,t68:20,gp68:6, sp68:14,remain68:14,alloc_gp:2, alloc_priv:1,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:12,t69_total:17},
-  {name:'สมเด็จ19ฯ',       qs:34,ql:28,t68:19,gp68:7, sp68:12,remain68:17,alloc_gp:2, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:6, t69_sp:13,t69_total:19},
-  {name:'บ่อพลอย',         qs:16,ql:13,t68:9, gp68:4, sp68:5, remain68:3, alloc_gp:4, alloc_priv:0,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:3, t69_total:8},
-  {name:'เจ้าคุณไพบูลย์',  qs:12,ql:10,t68:7, gp68:7, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:7, t69_sp:0, t69_total:7},
-  {name:'ด่านมะขามเตี้ย',  qs:10,ql:8, t68:5, gp68:5, sp68:0, remain68:1, alloc_gp:1, alloc_priv:2,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
-  {name:'ท่ากระดาน',       qs:4, ql:3, t68:3, gp68:3, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:2, t69_sp:0, t69_total:2},
-  {name:'ไทรโยค',          qs:10,ql:9, t68:6, gp68:6, sp68:0, remain68:5, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
-  {name:'เลาขวัญ',         qs:12,ql:10,t68:6, gp68:6, sp68:0, remain68:7, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:7, t69_sp:0, t69_total:7},
-  {name:'สถานพระบารมี',    qs:7, ql:6, t68:4, gp68:3, sp68:1, remain68:4, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:3, t69_sp:1, t69_total:4},
-  {name:'สมเด็จปิยฯ',      qs:6, ql:5, t68:3, gp68:1, sp68:2, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:1, t69_sp:2, t69_total:3},
-  {name:'สังขละบุรี',      qs:9, ql:8, t68:6, gp68:6, sp68:0, remain68:3, alloc_gp:2, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
-  {name:'ห้วยกระเจาฯ',     qs:8, ql:6, t68:5, gp68:5, sp68:0, remain68:2, alloc_gp:2, alloc_priv:0,alloc_late:1,alloc_intern70:0,t69_gp:5, t69_sp:0, t69_total:5},
-  {name:'ศุกร์ศิริฯ',      qs:3, ql:3, t68:2, gp68:2, sp68:0, remain68:2, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:2, t69_sp:0, t69_total:2},
-  {name:'หนองปรือ',        qs:3, ql:3, t68:4, gp68:4, sp68:0, remain68:3, alloc_gp:0, alloc_priv:0,alloc_late:0,alloc_intern70:0,t69_gp:3, t69_sp:0, t69_total:3},
+// Allocation per hospital (จัดสรรปี 69) — col D-Q + R จาก sheet จัดสรรแพทย์
+// d68/gp68/sp68 = col D,E,F (ปฏิบัติงานจริง ปี68) | remain=H | gp_before/sp_before=I,J | gp/sp=P,Q | fte=R
+const ALLOC = [
+  {hosp:'ทองผาภูมิ',                             d68:20, gp68:6,  sp68:14, remain:14, gp_before:2,  sp_before:12, intern:2, private:1, late:0, intern70:0, total69:17, gp:5,  sp:12, fte:'100.00%'},
+  {hosp:'สมเด็จพระสังฆราชองค์ที่๑๙',            d68:19, gp68:7,  sp68:12, remain:17, gp_before:4,  sp_before:13, intern:2, private:0, late:0, intern70:0, total69:19, gp:6,  sp:13, fte:'67.86%'},
+  {hosp:'บ่อพลอย',                               d68:9,  gp68:4,  sp68:5,  remain:3,  gp_before:0,  sp_before:3,  intern:4, private:0, late:1, intern70:0, total69:8,  gp:5,  sp:3,  fte:'61.54%'},
+  {hosp:'เจ้าคุณไพบูลย์พนมทวน',                 d68:7,  gp68:7,  sp68:0,  remain:7,  gp_before:7,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:7,  gp:7,  sp:0,  fte:'70.00%'},
+  {hosp:'ด่านมะขามเตี้ย',                        d68:5,  gp68:5,  sp68:0,  remain:1,  gp_before:1,  sp_before:0,  intern:1, private:2, late:1, intern70:0, total69:5,  gp:5,  sp:0,  fte:'62.50%'},
+  {hosp:'ท่ากระดาน',                             d68:3,  gp68:3,  sp68:0,  remain:2,  gp_before:2,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:2,  gp:2,  sp:0,  fte:'66.67%'},
+  {hosp:'ไทรโยค',                                d68:6,  gp68:6,  sp68:0,  remain:5,  gp_before:5,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:5,  gp:5,  sp:0,  fte:'55.56%'},
+  {hosp:'เลาขวัญ',                               d68:6,  gp68:6,  sp68:0,  remain:7,  gp_before:7,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:7,  gp:7,  sp:0,  fte:'70.00%'},
+  {hosp:'สถานพระบารมี',                          d68:4,  gp68:3,  sp68:1,  remain:4,  gp_before:3,  sp_before:1,  intern:0, private:0, late:0, intern70:0, total69:4,  gp:3,  sp:1,  fte:'66.67%'},
+  {hosp:'สมเด็จพระปิยมหาราชรมณียเขต',           d68:3,  gp68:1,  sp68:2,  remain:3,  gp_before:1,  sp_before:2,  intern:0, private:0, late:0, intern70:0, total69:3,  gp:1,  sp:2,  fte:'60.00%'},
+  {hosp:'สังขละบุรี',                            d68:6,  gp68:6,  sp68:0,  remain:3,  gp_before:3,  sp_before:0,  intern:2, private:0, late:0, intern70:0, total69:5,  gp:5,  sp:0,  fte:'62.50%'},
+  {hosp:'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา',  d68:5,  gp68:5,  sp68:0,  remain:2,  gp_before:2,  sp_before:0,  intern:2, private:0, late:1, intern70:0, total69:5,  gp:5,  sp:0,  fte:'83.33%'},
+  {hosp:'ศุกร์ศิริศรีสวัสดิ์',                  d68:2,  gp68:2,  sp68:0,  remain:2,  gp_before:2,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:2,  gp:2,  sp:0,  fte:'66.67%'},
+  {hosp:'หนองปรือ',                              d68:4,  gp68:4,  sp68:0,  remain:3,  gp_before:3,  sp_before:0,  intern:0, private:0, late:0, intern70:0, total69:3,  gp:3,  sp:0,  fte:'100.00%'},
 ];
 
-// Tab 4 comparison data
-const COMPARE = [
-  {name:'ทองผาภูมิ',       y68:20, y69_gp:5,  y69_sp:12},
-  {name:'สมเด็จ19ฯ',       y68:19, y69_gp:6,  y69_sp:13},
-  {name:'บ่อพลอย',         y68:9,  y69_gp:5,  y69_sp:3},
-  {name:'เจ้าคุณไพบูลย์',  y68:7,  y69_gp:7,  y69_sp:0},
-  {name:'ด่านมะขามเตี้ย',  y68:5,  y69_gp:5,  y69_sp:0},
-  {name:'ท่ากระดาน',       y68:3,  y69_gp:2,  y69_sp:0},
-  {name:'ไทรโยค',          y68:6,  y69_gp:5,  y69_sp:0},
-  {name:'เลาขวัญ',         y68:6,  y69_gp:7,  y69_sp:0},
-  {name:'สถานพระบารมี',    y68:4,  y69_gp:3,  y69_sp:1},
-  {name:'สมเด็จปิยฯ',      y68:3,  y69_gp:1,  y69_sp:2},
-  {name:'สังขละบุรี',      y68:6,  y69_gp:5,  y69_sp:0},
-  {name:'ห้วยกระเจาฯ',     y68:5,  y69_gp:5,  y69_sp:0},
-  {name:'ศุกร์ศิริฯ',      y68:2,  y69_gp:2,  y69_sp:0},
-  {name:'หนองปรือ',        y68:4,  y69_gp:3,  y69_sp:0},
-];
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+let barChartInstance = null;
 
-let charts = {};
-
-// ===================== RENDER FUNCTIONS =====================
-function fteChip(v){
-  if(v>=80) return `<span class="chip chip-ok">${v.toFixed(1)}%</span>`;
-  if(v>=60) return `<span class="chip chip-warn">${v.toFixed(1)}%</span>`;
-  return `<span class="chip chip-bad">${v.toFixed(1)}%</span>`;
-}
-function typeColor(t){
-  if(t==='Specialist') return 'var(--sp)';
-  if(t==='GP') return 'var(--gp)';
-  if(t==='Intern 1') return 'var(--i1)';
-  if(t==='Intern 2') return 'var(--i2)';
-  return 'var(--i3)';
-}
-
-function renderTab1(){
-  const tot = HOSPITALS.reduce((s,h)=>s+h.actual,0);
-  const totSP = HOSPITALS.reduce((s,h)=>s+h.sp,0);
-  const totGP = HOSPITALS.reduce((s,h)=>s+h.gp,0);
-  const totI = HOSPITALS.reduce((s,h)=>s+h.i1+h.i2+h.i3,0);
-  const avgFTE = (HOSPITALS.reduce((s,h)=>s+h.fte,0)/HOSPITALS.length).toFixed(1);
-  const totQL = HOSPITALS.reduce((s,h)=>s+h.ql,0);
-
-  document.getElementById('kpi1').innerHTML = `
-    <div class="kpi"><div class="num">${tot}</div><div class="lbl">แพทย์รวมทั้งจังหวัด</div></div>
-    <div class="kpi"><div class="num">${HOSPITALS.length}</div><div class="lbl">โรงพยาบาล รพช.</div></div>
-    <div class="kpi teal"><div class="num">${totSP}</div><div class="lbl">Specialist</div></div>
-    <div class="kpi orange"><div class="num">${totGP}</div><div class="lbl">GP ใช้ทุนครบ</div></div>
-    <div class="kpi purple"><div class="num">${totI}</div><div class="lbl">Intern รวม</div></div>
-    <div class="kpi ${parseFloat(avgFTE)>=80?'green':parseFloat(avgFTE)>=60?'orange':'red'}"><div class="num">${avgFTE}%</div><div class="lbl">FTE เฉลี่ย (กรอบต่ำ)</div></div>
+function renderKpi() {
+  const totSp  = SUMMARY.reduce((s,h)=>s+h.sp,0);
+  const totGp  = SUMMARY.reduce((s,h)=>s+h.gp,0);
+  const totI   = SUMMARY.reduce((s,h)=>s+h.i2+h.i3,0);
+  const totAll = SUMMARY.reduce((s,h)=>s+h.total,0);
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi"><div class="label">แพทย์ทั้งหมด (รพช.)</div><div class="value" style="color:#5b8dee">${totAll}</div><div class="sub-val">คน ปฏิบัติงานจริง</div></div>
+    <div class="kpi"><div class="label">โรงพยาบาลชุมชน</div><div class="value" style="color:#5b8dee">${SUMMARY.length}</div><div class="sub-val">แห่ง</div></div>
+    <div class="kpi"><div class="label">Specialist</div><div class="value" style="color:#3a6ae8">${totSp}</div><div class="sub-val">คน</div></div>
+    <div class="kpi"><div class="label">GP (ใช้ทุนครบ)</div><div class="value" style="color:#8040c8">${totGp}</div><div class="sub-val">คน</div></div>
+    <div class="kpi"><div class="label">Intern 2+3</div><div class="value" style="color:#52c4a0">${totI}</div><div class="sub-val">คน</div></div>
   `;
+}
 
-  // Populate dropdown
-  const sel = document.getElementById('hospital-select');
-  sel.innerHTML = '<option value="">-- เลือกโรงพยาบาล --</option>' +
-    HOSPITALS.map(h=>`<option value="${h.name}">${h.name} (${h.actual} คน, FTE ${h.fte}%)</option>`).join('');
+function renderChart() {
+  const sorted = [...SUMMARY].sort((a,b)=>b.total-a.total);
+  const shorten = n => n.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จฯ ๑๙')
+    .replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณฯ')
+    .replace('ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา','ห้วยกระเจาฯ')
+    .replace('สมเด็จพระปิยมหาราชรมณียเขต','สมเด็จปิยะฯ')
+    .replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ');
+  const labels = sorted.map(h=>shorten(h.name));
+  const spData = sorted.map(h=>h.sp);
+  const gpData = sorted.map(h=>h.total-h.sp);
+  const totals = sorted.map(h=>h.total);
 
-  // Chart
-  if(charts.overview) charts.overview.destroy();
-  const names = HOSPITALS.map(h=>h.name.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จ19ฯ').replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณไพบูลย์').replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ').replace('สมเด็จพระปิยมหาราชฯ','สมเด็จปิยฯ').replace('ห้วยกระเจาฯ','ห้วยกระเจาฯ'));
-  const topLabelPlugin = {
-    id:'topLabel',
+  const totalLabelPlugin = {
+    id:'totalLabel',
     afterDatasetsDraw(chart){
-      const {ctx,data,scales:{x,y}} = chart;
-      ctx.save();
-      data.datasets[0].data.forEach((v,i)=>{
-        const xPos = x.getPixelForValue(i);
-        const yPos = y.getPixelForValue(v);
-        ctx.fillStyle='#2d3a5e'; ctx.font='bold 11px Sarabun,sans-serif';
-        ctx.textAlign='center'; ctx.textBaseline='bottom';
-        ctx.fillText(v, xPos, yPos-2);
-      });
-      ctx.restore();
+      const {ctx}=chart;
+      const m0=chart.getDatasetMeta(0),m1=chart.getDatasetMeta(1);
+      ctx.save();ctx.font='bold 12px Noto Sans Thai,sans-serif';
+      ctx.fillStyle='#2d3a5e';ctx.textAlign='center';ctx.textBaseline='bottom';
+      m0.data.forEach((bar,i)=>{
+        const bar1=m1.data[i];
+        ctx.fillText(totals[i],bar.x,Math.min(bar.y,bar1.y)-4);
+      });ctx.restore();
     }
   };
-  charts.overview = new Chart(document.getElementById('chart-overview'),{
+  if(barChartInstance) barChartInstance.destroy();
+  barChartInstance = new Chart(document.getElementById('barChart').getContext('2d'),{
     type:'bar',
-    plugins:[topLabelPlugin],
-    data:{
-      labels:names,
-      datasets:[
-        {label:'แพทย์รวม',data:HOSPITALS.map(h=>h.actual),backgroundColor:'rgba(91,141,238,.72)',borderWidth:0,borderRadius:3},
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+    data:{labels,datasets:[
+      {label:'Specialist',data:spData,backgroundColor:'rgba(143,174,245,0.82)',borderColor:'rgba(143,174,245,1)',borderWidth:1,borderRadius:0,borderSkipped:false},
+      {label:'ทั่วไป (GP+Intern)',data:gpData,backgroundColor:'rgba(82,196,160,0.78)',borderColor:'rgba(82,196,160,1)',borderWidth:1,borderRadius:0,borderSkipped:false},
+    ]},
+    plugins:[totalLabelPlugin],
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:28}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{footer:(items)=>`รวม: ${items.reduce((s,i)=>s+i.parsed.y,0)} คน`}}},
       scales:{
-        x:{ticks:{font:{size:10},color:'#8a96b8'},grid:{display:false}},
-        y:{beginAtZero:true,ticks:{font:{size:10},color:'#8a96b8'},grid:{color:'rgba(199,212,245,.4)'},title:{display:true,text:'จำนวนแพทย์',color:'#8a96b8',font:{size:10}}}
+        x:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#5a6a96',font:{size:11},maxRotation:35}},
+        y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a96b8',stepSize:1},beginAtZero:true,suggestedMax:22}
       }
     }
   });
 }
 
-function renderHospitalDetail(){
-  const sel = document.getElementById('hospital-select').value;
-  const el = document.getElementById('hospital-detail');
-  if(!sel){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;">เลือกโรงพยาบาลเพื่อดูรายละเอียด</div>';return;}
-  const h = HOSPITALS.find(x=>x.name===sel);
-  const docs = DOCTOR_LISTS[sel] || [];
-  const fteColor = h.fte>=80?'#1a9970':h.fte>=60?'#c47d0a':'#c0392b';
-  const fteBg   = h.fte>=80?'rgba(82,196,160,.12)':h.fte>=60?'rgba(245,166,35,.12)':'rgba(244,127,127,.12)';
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px;">
-      <div class="kpi"><div class="num">${h.actual}</div><div class="lbl">แพทย์ปัจจุบัน</div></div>
-      <div class="kpi"><div class="num">${h.ql}</div><div class="lbl">กรอบต่ำ</div></div>
-      <div class="kpi" style="background:${fteBg};"><div class="num" style="color:${fteColor};">${h.fte.toFixed(1)}%</div><div class="lbl">FTE (กรอบต่ำ)</div></div>
-      <div class="kpi teal"><div class="num">${h.sp}</div><div class="lbl">Specialist</div></div>
-      <div class="kpi orange"><div class="num">${h.gp}</div><div class="lbl">GP</div></div>
-      <div class="kpi purple"><div class="num">${h.i1+h.i2+h.i3}</div><div class="lbl">Intern รวม</div></div>
-    </div>
-    <div style="overflow-x:auto;">
-    <table style="min-width:480px;">
-      <thead><tr><th style="width:32px">#</th><th style="text-align:left">ชื่อ-นามสกุล</th><th style="width:44px">อายุ</th><th style="width:96px">ประเภท</th><th style="width:120px">ตำแหน่ง</th><th style="width:130px">แผนปี 69</th></tr></thead>
-      <tbody>${docs.map((d,i)=>`<tr>
-        <td>${i+1}</td><td style="text-align:left">${d.name}</td><td>${d.age}</td>
-        <td><span class="chip" style="background:${typeColor(d.type)}22;color:${typeColor(d.type)};font-size:10px;">${d.type}</span></td>
-        <td style="font-size:11px;color:var(--text2)">${d.pos}</td>
-        <td style="font-size:11px">${d.plan==='ปฏิบัติงานต่อ'?'<span class="chip chip-ok">ปฏิบัติงานต่อ</span>':'<span class="chip chip-warn">'+d.plan+'</span>'}</td>
-      </tr>`).join('')}</tbody>
-    </table>
-    </div>
-  `;
+function renderHospDropdown() {
+  const sel = document.getElementById('hospSelect');
+  SUMMARY.forEach(h=>{
+    const opt=document.createElement('option');
+    opt.value=h.name; opt.text=`${h.name} (${h.total} คน)`;
+    sel.appendChild(opt);
+  });
 }
 
-function renderTab2(){
-  let html = '<thead><tr><th style="text-align:left;min-width:110px">โรงพยาบาล</th><th>ผู้ประสานงาน</th><th>เบอร์</th>'
-    + MONTHS.map(m=>`<th>${m}</th>`).join('') + '</tr></thead><tbody>';
-  ROT_HOSPITALS.forEach(h=>{
-    html += `<tr><td style="text-align:left;font-weight:700">${h.name}</td><td>${h.coord}</td><td style="font-size:10px;color:var(--text2)">${h.tel}</td>`;
-    h.counts.forEach(c=>{
-      if(c>0) html += `<td><span class="rot-cell">${c} คน</span></td>`;
-      else html += '<td><span style="color:#dde5ff">-</span></td>';
-    });
-    html += '</tr>';
-  });
-  html += '</tbody>';
-  document.getElementById('rot-table').innerHTML = html;
+function typeBadge(t){
+  if(t==='Specialist') return `<span class="badge-sp">Specialist</span>`;
+  if(t==='GP') return `<span class="badge-gp">GP</span>`;
+  return `<span class="badge-int">${t}</span>`;
 }
 
-function renderTab3(){
-  // KPI summary row
-  const totOut = MOVE_DATA.reduce((s,r)=>s+r.out.total,0);
-  const totIn  = MOVE_DATA.reduce((s,r)=>s+r.inp.total,0);
-  const totRem = MOVE_DATA.reduce((s,r)=>s+r.remain,0);
-  document.getElementById('kpi-move').innerHTML = `
-    <div class="kpi orange"><div class="num">95</div><div class="lbl">แพทย์ปฏิบัติงาน ปี 68</div></div>
-    <div class="kpi red"><div class="num">${totOut}</div><div class="lbl">ย้ายออกรวม ปี 69</div></div>
-    <div class="kpi teal"><div class="num">${totIn}</div><div class="lbl">ย้ายเข้ารวม ปี 69</div></div>
-    <div class="kpi green"><div class="num">${totRem}</div><div class="lbl">แพทย์คงเหลือ (ไม่นับ intern1)</div></div>
-  `;
+function renderDoctorTable() {
+  const hosp = document.getElementById('hospSelect').value;
+  const wrap = document.getElementById('doctorTableWrap');
+  const ph   = document.getElementById('doctorPlaceholder');
+  if(!hosp){wrap.style.display='none';ph.style.display='block';return;}
+  const docs = DOCTOR_DATA[hosp]||[];
+  wrap.style.display='block';ph.style.display='none';
+  document.getElementById('doctorTbody').innerHTML = docs.map((d,i)=>`
+    <tr>
+      <td style="color:#8a96b8;font-weight:600;">${i+1}</td>
+      <td style="font-weight:500;">${d.name}</td>
+      <td style="text-align:center;">${d.age}</td>
+      <td>${typeBadge(d.type)}</td>
+      <td style="color:#5a6a96;font-size:.8rem;">${d.note||'-'}</td>
+    </tr>`).join('');
+}
 
-  // Bar chart: ย้ายออก vs ย้ายเข้า per hospital
-  if(charts.move) charts.move.destroy();
-  charts.move = new Chart(document.getElementById('chart-move'),{
-    type:'bar',
-    data:{
-      labels: MOVE_DATA.map(r=>r.name),
-      datasets:[
-        {label:'ย้ายออก', data:MOVE_DATA.map(r=>r.out.total), backgroundColor:'rgba(244,127,127,.75)', borderWidth:0, borderRadius:3},
-        {label:'ย้ายเข้า', data:MOVE_DATA.map(r=>r.inp.total), backgroundColor:'rgba(109,213,181,.8)',  borderWidth:0, borderRadius:3},
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'top', labels:{font:{size:11}, color:'#5a6a96'}}},
-      scales:{
-        x:{ticks:{font:{size:9}, color:'#8a96b8'}, grid:{display:false}},
-        y:{beginAtZero:true, ticks:{font:{size:10}}, grid:{color:'rgba(199,212,245,.4)'}}
-      }
-    }
-  });
-
-  // Detail table
-  let html = `<table style="min-width:900px;">
-    <thead>
-      <tr>
-        <th rowspan="2" style="text-align:left;min-width:110px">โรงพยาบาล</th>
-        <th rowspan="2">แพทย์ปี 68</th>
-        <th colspan="5" style="background:#fff0f0">ย้ายออก ปี 69</th>
-        <th colspan="4" style="background:#f0fff8">ย้ายเข้า ปี 69</th>
-        <th colspan="4" style="background:#fdf5ff">สรุปการเปลี่ยนแปลง</th>
-        <th rowspan="2" style="background:#e8eeff;font-weight:800">คงเหลือ<br><span style="font-size:9px;font-weight:400">(ไม่นับ intern1)</span></th>
-      </tr>
-      <tr style="font-size:10px;">
-        <th style="background:#fff0f0">GP ย้ายใน จ.</th>
-        <th style="background:#fff0f0">SP ย้ายใน จ.</th>
-        <th style="background:#fff0f0">ย้ายนอก จ.</th>
-        <th style="background:#fff0f0">เรียนต่อ</th>
-        <th style="background:#ffd9d9;font-weight:800">รวมออก</th>
-        <th style="background:#f0fff8">ย้ายใน จ.</th>
-        <th style="background:#f0fff8">ย้ายจาก จ.อื่น</th>
-        <th style="background:#f0fff8">เรียนจบ</th>
-        <th style="background:#d0f5e8;font-weight:800">รวมเข้า</th>
-        <th style="background:#fdf5ff">เรียนต่อ<br>(GP+SP)</th>
-        <th style="background:#fdf5ff">ลาออก<br>(GP+SP)</th>
-        <th style="background:#fdf5ff">ย้ายออก<br>นอก จ.</th>
-        <th style="background:#fdf5ff">ย้ายเข้า<br>จาก จ.อื่น</th>
-      </tr>
-    </thead>
-    <tbody>`;
-  MOVE_DATA.forEach(r=>{
-    const outGpIn   = r.out.gp_in||0;
-    const outSpIn   = r.out.sp_in||0;
-    const outNoj    = (r.out.gp_out||0)+(r.out.sp_out||0);
-    const outStudy  = (r.out.gp_study||0)+(r.out.sp_study||0);
-    const inIn      = (r.inp.gp_in||0)+(r.inp.sp_in||0);
-    const inOther   = (r.inp.gp_other||0)+(r.inp.sp_other||0);
-    const grad      = r.inp.grad||0;
-    const sumStudy  = (r.out.gp_study||0)+(r.out.sp_study||0);
-    const sumQuit   = (r.out.gp_quit||0)+(r.out.sp_quit||0);
-    const sumOutNoj = (r.out.gp_out||0)+(r.out.sp_out||0);
-    const sumInOth  = (r.inp.gp_other||0)+(r.inp.sp_other||0);
-    html += `<tr>
-      <td style="text-align:left;font-weight:600">${r.name}</td>
-      <td>${r.t68}</td>
-      <td style="background:#fff8f8">${outGpIn||'-'}</td>
-      <td style="background:#fff8f8">${outSpIn||'-'}</td>
-      <td style="background:#fff8f8">${outNoj||'-'}</td>
-      <td style="background:#fff8f8">${outStudy||'-'}</td>
-      <td style="background:#ffeaea;font-weight:700;color:#c0392b">${r.out.total||'-'}</td>
-      <td style="background:#f5fffb">${inIn||'-'}</td>
-      <td style="background:#f5fffb">${inOther||'-'}</td>
-      <td style="background:#f5fffb">${grad||'-'}</td>
-      <td style="background:#e8faf2;font-weight:700;color:#1a9970">${r.inp.total||'-'}</td>
-      <td style="background:#fdf5ff;font-weight:600">${sumStudy||'-'}</td>
-      <td style="background:#fdf5ff;font-weight:600">${sumQuit||'-'}</td>
-      <td style="background:#fdf5ff;font-weight:600">${sumOutNoj||'-'}</td>
-      <td style="background:#fdf5ff;font-weight:600">${sumInOth||'-'}</td>
-      <td style="background:#e8eeff;font-weight:700">${r.remain}</td>
+// Tab 2
+function renderInternMonthly() {
+  document.getElementById('internTbody').innerHTML = INTERN_MONTHLY.map(r=>{
+    const cells = r.months.map(m=>{
+      const v=(m||'').trim();
+      if(!v||v==='0') return '<td style="color:#d0d8f0">—</td>';
+      return `<td><span class="cell-count">${v}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td style="font-weight:600;">${r.hosp}</td>
+      <td style="color:#5a6a96;">${r.coord}</td>
+      <td style="color:#5b8dee;font-size:.78rem;">${r.tel}</td>
+      ${cells}
     </tr>`;
-  });
-  const sumOut = MOVE_DATA.reduce((s,r)=>s+r.out.total,0);
-  const sumIn  = MOVE_DATA.reduce((s,r)=>s+r.inp.total,0);
-  const sumRem = MOVE_DATA.reduce((s,r)=>s+r.remain,0);
-  const totStudy = MOVE_DATA.reduce((s,r)=>s+(r.out.gp_study||0)+(r.out.sp_study||0),0);
-  const totQuit  = MOVE_DATA.reduce((s,r)=>s+(r.out.gp_quit||0)+(r.out.sp_quit||0),0);
-  const totOutNoj= MOVE_DATA.reduce((s,r)=>s+(r.out.gp_out||0)+(r.out.sp_out||0),0);
-  const totInOth = MOVE_DATA.reduce((s,r)=>s+(r.inp.gp_other||0)+(r.inp.sp_other||0),0);
-  html += `<tr style="background:#f0f4ff;font-weight:700;">
-    <td style="text-align:left">รวม</td><td>95</td>
-    <td colspan="4" style="background:#fff0f0"></td>
-    <td style="background:#ffeaea;color:#c0392b">${sumOut}</td>
-    <td colspan="3" style="background:#f0fff8"></td>
-    <td style="background:#e8faf2;color:#1a9970">${sumIn}</td>
-    <td style="background:#fdf5ff">${totStudy}</td>
-    <td style="background:#fdf5ff">${totQuit}</td>
-    <td style="background:#fdf5ff">${totOutNoj}</td>
-    <td style="background:#fdf5ff">${totInOth}</td>
-    <td style="background:#e8eeff">${sumRem}</td>
-  </tr></tbody></table>`;
-  document.getElementById('move-table').innerHTML = html;
+  }).join('');
 }
 
-function renderTab4(){
-  // Allocation table
-  let html = `<table style="min-width:860px;">
-    <thead>
-      <tr>
-        <th rowspan="2" style="text-align:left;min-width:110px">โรงพยาบาล</th>
-        <th colspan="3" style="background:#f0f4ff">ปี 68</th>
-        <th colspan="4" style="background:#e8faf2">จัดสรรใหม่ ปี 69</th>
-        <th colspan="3" style="background:#eef7ff">แพทย์ปี 69</th>
-      </tr>
-      <tr style="font-size:10px;">
-        <th style="background:#f0f4ff">รวม</th>
-        <th style="background:#f0f4ff">GP+Intern</th>
-        <th style="background:#f0f4ff">SP</th>
-        <th style="background:#e8faf2">จัดสรร intern ปี 69</th>
-        <th style="background:#e8faf2">เอกชน</th>
-        <th style="background:#e8faf2">จบช้า</th>
-        <th style="background:#e8faf2;color:#b07fe8">จัดสรร intern ปี 70</th>
-        <th style="background:#eef7ff">GP+Intern</th>
-        <th style="background:#eef7ff">SP</th>
-        <th style="background:#dff0ff;font-weight:800">จำนวนแพทย์<br>ประจำปี 69</th>
-      </tr>
-    </thead>
-    <tbody>`;
-  ALLOC_DATA.forEach(r=>{
-    html += `<tr>
-      <td style="text-align:left;font-weight:600">${r.name}</td>
-      <td style="background:#f8faff">${r.t68}</td>
-      <td style="background:#f8faff;font-size:11px;color:var(--text2)">${r.gp68}</td>
-      <td style="background:#f8faff;font-size:11px;color:var(--text2)">${r.sp68}</td>
-      <td style="background:#f0fff8;font-weight:700;color:#1a9970">${r.alloc_gp||'-'}</td>
-      <td style="background:#f0fff8">${r.alloc_priv||'-'}</td>
-      <td style="background:#f0fff8">${r.alloc_late||'-'}</td>
-      <td style="background:#f5f0ff;color:#b07fe8;font-style:italic">${r.alloc_intern70||'-'}</td>
-      <td style="background:#eef7ff;font-weight:700">${r.t69_gp}</td>
-      <td style="background:#eef7ff;font-weight:700">${r.t69_sp||'-'}</td>
-      <td style="background:#dff0ff;font-weight:800;font-size:15px;color:#1a5fa6">${r.t69_total}</td>
-    </tr>`;
-  });
-  const tot68=ALLOC_DATA.reduce((s,r)=>s+r.t68,0);
-  const tot69gp=ALLOC_DATA.reduce((s,r)=>s+r.t69_gp,0);
-  const tot69sp=ALLOC_DATA.reduce((s,r)=>s+r.t69_sp,0);
-  const tot69total=ALLOC_DATA.reduce((s,r)=>s+r.t69_total,0);
-  html += `<tr style="background:#f0f4ff;font-weight:700;">
-    <td style="text-align:left">รวม</td>
-    <td>${tot68}</td><td></td><td></td>
-    <td colspan="4"></td>
-    <td>${tot69gp}</td><td>${tot69sp}</td>
-    <td style="background:#dff0ff;font-size:15px;color:#1a5fa6">${tot69total}</td>
-  </tr></tbody></table>`;
-  document.getElementById('alloc-table').innerHTML = html;
+const HOSP_COLORS={'ทผภ':'rgba(143,174,245,.22);color:#3a6ae8','หนองปรือ':'rgba(176,127,232,.18);color:#7030b8','สังขละ':'rgba(245,200,100,.25);color:#b07000','เลาขวัญ':'rgba(82,196,160,.2);color:#1a9970','บ่อพลอย':'rgba(244,127,127,.2);color:#c0392b','ด่านฯ':'rgba(245,166,35,.2);color:#c47d0a','ท่ากระดาน':'rgba(79,179,217,.2);color:#1a7ca0','ท่าม่วง':'rgba(200,180,245,.3);color:#6040c8'};
+function getStyle(v){for(const[k,s] of Object.entries(HOSP_COLORS)){if(v.includes(k)){const p=s.split(';');return `background:${p[0].replace('background:','')};${p[1]||''}`;}}return 'background:rgba(91,141,238,.12);color:#5b8dee';}
 
-  // Comparison chart
-  if(charts.compare) charts.compare.destroy();
-  charts.compare = new Chart(document.getElementById('chart-compare'),{
+function renderInternRotate() {
+  document.getElementById('internRotateTbody').innerHTML = INTERN_ROTATE.map(r=>{
+    const cells = r.m.map(v=>{
+      if(!v) return '<td style="color:#d0d8f0">—</td>';
+      return `<td><span class="cell-assign" style="${getStyle(v)}">${v}</span></td>`;
+    }).join('');
+    return `<tr><td style="font-weight:600;text-align:left;padding-left:13px;">${r.name}</td>${cells}</tr>`;
+  }).join('');
+}
+
+// Tab 3
+function toggleSub(id){
+  const el=document.getElementById(id);
+  const arr=document.getElementById('arr-'+id);
+  const isOpen=el.style.display!=='none';
+  el.style.display=isOpen?'none':'block';
+  if(arr) arr.textContent=isOpen?'▶':'▼';
+}
+
+function renderAllocCards() {
+  const sub=(label,val)=>`<div style="background:#f0f4ff;border-radius:8px;padding:7px 8px;">
+    <div style="color:#8a96b8;font-size:.72rem;">${label}</div>
+    <div style="font-weight:700;font-size:1.05rem;color:#2d3a5e;">${val}</div></div>`;
+  document.getElementById('allocSummaryCards').innerHTML = `
+    <div class="sum-card" style="grid-column:span 2;">
+      <div class="s-label">👨‍⚕️ แพทย์ที่ปฏิบัติงาน ปี 68 ทั้งหมด</div>
+      <div class="s-val" style="color:#5b8dee;font-size:2.2rem;">95</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;">
+        ${sub('Intern 1',4)}${sub('Intern 2',19)}${sub('Intern 3',18)}${sub('GP',24)}${sub('Specialist',34)}
+      </div>
+    </div>
+    <div class="sum-card" onclick="toggleSub('subOut')" style="cursor:pointer;user-select:none;">
+      <div class="s-label">⬆️ ย้ายออก ปี 69 &nbsp;<span id="arr-subOut" style="font-size:.8rem;color:#5b8dee;">▶</span></div>
+      <div class="s-val" style="color:#f47f7f;">31</div>
+      <div id="subOut" style="display:none;margin-top:10px;border-top:1px solid #c7d4f5;padding-top:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${sub('GP ย้ายในจังหวัด',4)}${sub('SP ย้ายในจังหวัด',4)}
+          ${sub('GP ย้ายนอกจังหวัด',1)}${sub('SP ย้ายนอกจังหวัด',1)}
+          ${sub('GP เรียนต่อ',20)}${sub('SP เรียนต่อ',1)}
+          ${sub('GP ลาออก',0)}${sub('SP ลาออก',0)}
+        </div>
+      </div>
+    </div>
+    <div class="sum-card" onclick="toggleSub('subIn')" style="cursor:pointer;user-select:none;">
+      <div class="s-label">⬇️ ย้ายเข้า ปี 69 &nbsp;<span id="arr-subIn" style="font-size:.8rem;color:#5b8dee;">▶</span></div>
+      <div class="s-val" style="color:#52c4a0;">9</div>
+      <div id="subIn" style="display:none;margin-top:10px;border-top:1px solid #c7d4f5;padding-top:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${sub('GP ย้ายในจังหวัด',4)}${sub('SP ย้ายในจังหวัด',0)}
+          ${sub('GP จากจังหวัดอื่น',2)}${sub('SP จากจังหวัดอื่น',0)}
+          <div style="background:#f0f4ff;border-radius:8px;padding:7px 8px;grid-column:span 2;">
+            <div style="color:#8a96b8;font-size:.72rem;">เรียนจบ / บรรจุใหม่</div>
+            <div style="font-weight:700;font-size:1.05rem;color:#2d3a5e;">3</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+let compChartInstance = null;
+
+function toggleAllocSec(id){
+  const body=document.getElementById('body-'+id);
+  const arr=document.getElementById('arr-'+id);
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  if(arr) arr.textContent=open?'▼':'▲';
+}
+
+function renderAllocDetails(){
+  const sh=n=>n.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จฯ ๑๙').replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณฯ').replace('ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา','ห้วยกระเจาฯ').replace('สมเด็จพระปิยมหาราชรมณียเขต','สมเด็จปิยะฯ').replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ');
+  const tot={intern:ALLOC.reduce((s,r)=>s+r.intern,0),private:ALLOC.reduce((s,r)=>s+r.private,0),late:ALLOC.reduce((s,r)=>s+r.late,0),intern70:ALLOC.reduce((s,r)=>s+r.intern70,0)};
+
+  const miniRow=(r,key,bg)=>`<tr>
+    <td style="text-align:left;padding:9px 10px;font-weight:600;">${sh(r.hosp)}</td>
+    <td style="background:#f0f4ff;padding:9px 10px;">${r.remain}</td>
+    <td style="background:${bg};padding:9px 10px;font-weight:700;">${r[key]||0}</td>
+    <td style="background:#f0fff8;padding:9px 10px;font-weight:700;">${r.total69}</td>
+    <td style="padding:9px 10px;font-size:.82rem;color:#5a6a96;">${r.fte}</td>
+  </tr>`;
+  const miniTable=(key,bg,label)=>{
+    const rows=ALLOC.filter(r=>(r[key]||0)>0).map(r=>miniRow(r,key,bg)).join('');
+    const tot69=ALLOC.filter(r=>(r[key]||0)>0).reduce((s,r)=>s+r.total69,0);
+    const totKey=ALLOC.filter(r=>(r[key]||0)>0).reduce((s,r)=>s+(r[key]||0),0);
+    return `<div style="overflow-x:auto;padding:16px 16px 0;">
+      <table class="alloc-table" style="width:100%;border-collapse:collapse;">
+        <thead><tr>
+          <th style="text-align:left;padding-left:8px;">โรงพยาบาล</th>
+          <th style="background:#d8e8ff;">คงเหลือก่อน</th>
+          <th style="background:${bg};">${label}</th>
+          <th style="background:#c8f0e0;">รวมปี 69</th>
+          <th>FTE%</th>
+        </tr></thead>
+        <tbody>${rows}
+        <tr style="background:#e8eeff;font-weight:700;">
+          <td style="padding-left:8px;">รวม</td>
+          <td>${ALLOC.filter(r=>(r[key]||0)>0).reduce((s,r)=>s+r.remain,0)}</td>
+          <td>${totKey}</td><td>${tot69}</td><td>-</td>
+        </tr></tbody>
+      </table></div>`;
+  };
+
+  const fullRows=ALLOC.map(r=>{
+    const diff=r.total69-r.remain;
+    const dc=diff>0?'color:#1a9970;font-weight:700':diff<0?'color:#c0392b;font-weight:700':'color:#8a96b8';
+    return `<tr>
+      <td style="text-align:left;padding:9px 10px;font-weight:600;">${sh(r.hosp)}</td>
+      <td style="background:#f0f4ff;">${r.remain}</td><td style="background:#f0f4ff;">${r.gp_before}</td><td style="background:#f0f4ff;">${r.sp_before}</td>
+      <td>${r.intern||0}</td><td>${r.private||0}</td><td>${r.late||0}</td><td>${r.intern70||0}</td>
+      <td style="background:#f0fff8;font-weight:700;">${r.total69}</td><td style="background:#f0fff8;">${r.gp}</td><td style="background:#f0fff8;">${r.sp}</td>
+      <td style="font-size:.8rem;color:#5a6a96;">${r.fte}</td>
+    </tr>`;}).join('');
+
+  const sec=(id,color,icon,label,val,sub,content)=>`
+    <div style="border-radius:16px;overflow:hidden;border:2px solid ${color}30;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);">
+      <div onclick="toggleAllocSec('${id}')" style="cursor:pointer;background:linear-gradient(135deg,${color}15,${color}08);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div style="font-size:2.6rem;">${icon}</div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:#2d3a5e;margin-bottom:4px;">${label}</div>
+            <div style="font-size:.85rem;color:#8a96b8;">${sub}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="font-size:3.2rem;font-weight:800;color:${color};line-height:1;">${val} <span style="font-size:1.1rem;font-weight:500;color:#8a96b8;">คน</span></div>
+          <span id="arr-${id}" style="font-size:1.2rem;color:${color};">▼</span>
+        </div>
+      </div>
+      <div id="body-${id}" style="display:none;background:#fff;border-top:2px solid ${color}20;">${content}</div>
+    </div>`;
+
+  document.getElementById('allocDetailsWrap').innerHTML=
+    sec('ad1','#5b8dee','👨‍⚕️','Intern 1 ปี 69',tot.intern,'จัดสรรออก รพช. เดือน มิย.',miniTable('intern','#dce8ff','จัดสรร I69'))+
+    sec('ad2','#f4a855','🏥','แพทย์เอกชน',tot.private,'เดือน กย.',miniTable('private','#fde8c8','จัดสรรเอกชน'))+
+    sec('ad3','#e07bb5','🎓','แพทย์จบช้า',tot.late,'ออกรพช. สค.',miniTable('late','#fbd8ee','จัดสรรจบช้า'))+
+    sec('ad4','#52c4a0','📅','Intern 1 ปี 70',tot.intern70,'เตรียมรับปีงบประมาณ 70',miniTable('intern70','#c8f0e0','จัดสรร I70'))+
+    `<div style="border-radius:16px;overflow:hidden;border:2px solid #c7d4f580;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);">
+      <div onclick="toggleAllocSec('adAll')" style="cursor:pointer;background:#f0f4ff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+        <div style="font-weight:700;font-size:1rem;color:#2d3a5e;">📋 ตารางจัดสรรรายโรงพยาบาล</div>
+        <span id="arr-adAll" style="font-size:1.1rem;color:#5b8dee;">▼</span>
+      </div>
+      <div id="body-adAll" style="display:none;background:#fff;border-top:2px solid #c7d4f580;">
+        <div style="overflow-x:auto;padding:16px;">
+        <table class="alloc-table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:8px;" rowspan="2">โรงพยาบาล</th>
+              <th colspan="3" style="background:#c8d8ff;">ก่อนจัดสรร</th>
+              <th style="background:#e8eeff;">Intern 1 ปี 69</th><th style="background:#e8eeff;">เอกชน</th><th style="background:#e8eeff;">จบช้า</th><th style="background:#e8eeff;">Intern 1 ปี 70</th>
+              <th colspan="3" style="background:#b8f0d4;">หลังจัดสรร ปี 69</th>
+              <th style="background:#e8eeff;" rowspan="2">FTE%</th>
+            </tr>
+            <tr>
+              <th style="background:#d8e8ff;">รวม</th><th style="background:#d8e8ff;">GP</th><th style="background:#d8e8ff;">SP</th>
+              <th style="background:#e8eeff;"></th><th style="background:#e8eeff;"></th><th style="background:#e8eeff;"></th><th style="background:#e8eeff;"></th>
+              <th style="background:#c8f0e0;">รวม</th><th style="background:#c8f0e0;">GP</th><th style="background:#c8f0e0;">SP</th>
+            </tr>
+          </thead>
+          <tbody>${fullRows}
+          <tr style="background:#e8eeff;font-weight:700;">
+            <td style="padding-left:8px;">รวม</td>
+            <td>${ALLOC.reduce((s,r)=>s+r.remain,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp_before,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp_before,0)}</td>
+            <td>${tot.intern}</td><td>${tot.private}</td><td>${tot.late}</td><td>${tot.intern70}</td>
+            <td>${ALLOC.reduce((s,r)=>s+r.total69,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp,0)}</td>
+            <td>-</td>
+          </tr></tbody>
+        </table></div>
+      </div>
+    </div>`;
+}
+
+function renderComparisonChart() {
+  const sh=n=>n.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จฯ').replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณฯ').replace('ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา','ห้วยกระเจาฯ').replace('สมเด็จพระปิยมหาราชรมณียเขต','สมเด็จปิยะฯ').replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ');
+  const canvas=document.getElementById('compChart');
+  if(!canvas) return;
+  if(compChartInstance) compChartInstance.destroy();
+  const totalPlugin={
+    id:'totalLabelComp',
+    afterDatasetsDraw(chart){
+      const {ctx}=chart;
+      ctx.save();ctx.font='bold 11px Noto Sans Thai,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+      chart.data.datasets.forEach((ds,di)=>{
+        chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+          const v=ds.data[i];
+          if(v>0){ctx.fillStyle=di===0?'#3a6ae8':'#1a9970';ctx.fillText(v,bar.x,bar.y-3);}
+        });
+      });ctx.restore();
+    }
+  };
+  compChartInstance=new Chart(canvas.getContext('2d'),{
     type:'bar',
-    data:{
-      labels: COMPARE.map(c=>c.name),
-      datasets:[
-        {label:'ปี 68 (รวม intern1)', data:COMPARE.map(c=>c.y68),            backgroundColor:'rgba(143,174,245,.75)', borderWidth:0, borderRadius:3},
-        {label:'ปี 69 (หลังจัดสรร)', data:COMPARE.map(c=>c.y69_gp+c.y69_sp), backgroundColor:'rgba(109,213,181,.85)', borderWidth:0, borderRadius:3},
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'top', labels:{font:{size:11}, color:'#5a6a96'}}},
+    data:{labels:ALLOC.map(r=>sh(r.hosp)),datasets:[
+      {label:'ปี 68 — รวมทั้งหมด',   data:ALLOC.map(r=>r.d68),   backgroundColor:'rgba(91,141,238,0.65)',borderColor:'rgba(91,141,238,1)',borderWidth:1,borderRadius:0},
+      {label:'ปี 69 — หลังจัดสรร',   data:ALLOC.map(r=>r.total69),backgroundColor:'rgba(82,196,160,0.72)',borderColor:'rgba(82,196,160,1)',borderWidth:1,borderRadius:0},
+    ]},
+    plugins:[totalPlugin],
+    options:{responsive:true,layout:{padding:{top:24}},
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:12,family:'Noto Sans Thai,sans-serif'},color:'#2d3a5e'}}},
       scales:{
-        x:{ticks:{font:{size:9}, color:'#8a96b8'}, grid:{display:false}},
-        y:{beginAtZero:true, ticks:{font:{size:10}}, grid:{color:'rgba(199,212,245,.4)'}}
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#5a6a96',font:{size:11},maxRotation:35}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#8a96b8',stepSize:1},beginAtZero:true,suggestedMax:24}
       }
     }
   });
-
-  // Comparison table
-  let cmp = '<div class="cmp-row hd"><div>โรงพยาบาล</div><div>ปี 68</div><div>ปี 69</div><div>เปลี่ยน</div></div>';
-  COMPARE.forEach(c=>{
-    const y69t = c.y69_gp+c.y69_sp;
-    const diff = y69t - c.y68;
-    const ds = diff>0?`<span class="arrow-up">▲${diff}</span>`:diff<0?`<span class="arrow-dn">▼${Math.abs(diff)}</span>`:'<span style="color:var(--text3)">–</span>';
-    cmp += `<div class="cmp-row"><div>${c.name}</div><div>${c.y68}</div><div>${y69t}</div><div>${ds}</div></div>`;
-  });
-  const t68=COMPARE.reduce((s,c)=>s+c.y68,0);
-  const t69=COMPARE.reduce((s,c)=>s+c.y69_gp+c.y69_sp,0);
-  const td=t69-t68;
-  cmp += `<div class="cmp-row hd"><div>รวม</div><div>${t68}</div><div>${t69}</div><div>${td<0?'<span class="arrow-dn">▼'+Math.abs(td)+'</span>':'<span class="arrow-up">▲'+td+'</span>'}</div></div>`;
-  document.getElementById('cmp-table').innerHTML = cmp;
 }
 
-// ===================== TAB SWITCHING =====================
-function showTab(i){
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
-  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+function renderCompTable() {
+  const sh=n=>n.replace('สมเด็จพระสังฆราชองค์ที่๑๙','สมเด็จฯ ๑๙').replace('เจ้าคุณไพบูลย์พนมทวน','เจ้าคุณฯ').replace('ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา','ห้วยกระเจาฯ').replace('สมเด็จพระปิยมหาราชรมณียเขต','สมเด็จปิยะฯ').replace('ศุกร์ศิริศรีสวัสดิ์','ศุกร์ศิริฯ');
+  document.getElementById('compTableWrap').innerHTML=`
+    <table class="alloc-table" style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding-left:8px;" rowspan="2">โรงพยาบาล</th>
+          <th colspan="3" style="background:#c8d8ff;">ปี 68</th>
+          <th colspan="3" style="background:#b8f0d4;">ปี 69</th>
+          <th rowspan="2">เพิ่ม/ลด</th>
+          <th rowspan="2" style="background:#e8eeff;">FTE%</th>
+        </tr>
+        <tr>
+          <th style="background:#d8e8ff;">รวม</th><th style="background:#d8e8ff;">GP</th><th style="background:#d8e8ff;">SP</th>
+          <th style="background:#c8f0e0;">รวม</th><th style="background:#c8f0e0;">GP</th><th style="background:#c8f0e0;">SP</th>
+        </tr>
+      </thead>
+      <tbody>${ALLOC.map(r=>{
+        const diff=r.total69-r.d68;
+        const dc=diff>0?'color:#1a9970;font-weight:700':diff<0?'color:#c0392b;font-weight:700':'color:#8a96b8';
+        return`<tr>
+          <td style="text-align:left;padding-left:8px;font-weight:600;">${sh(r.hosp)}</td>
+          <td style="background:#f0f4ff;">${r.d68}</td><td style="background:#f0f4ff;">${r.gp68}</td><td style="background:#f0f4ff;">${r.sp68}</td>
+          <td style="background:#f0fff8;font-weight:700;">${r.total69}</td><td style="background:#f0fff8;">${r.gp}</td><td style="background:#f0fff8;">${r.sp}</td>
+          <td style="${dc}">${diff>0?'+'+diff:diff}</td>
+          <td style="font-size:.8rem;color:#5a6a96;">${r.fte}</td>
+        </tr>`;}).join('')}
+      <tr style="background:#e8eeff;font-weight:700;">
+        <td style="padding-left:8px;">รวม</td>
+        <td>${ALLOC.reduce((s,r)=>s+r.d68,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp68,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp68,0)}</td>
+        <td>${ALLOC.reduce((s,r)=>s+r.total69,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp,0)}</td>
+        <td style="color:#1a9970;">+${ALLOC.reduce((s,r)=>s+r.total69-r.d68,0)}</td><td>-</td>
+      </tr></tbody>
+    </table>`;
 }
 
-// ===================== LIVE DATA LOAD =====================
-async function loadData(){
-  document.getElementById('loading').style.display='flex';
-  try {
-    if(window.cowork && window.cowork.callMcpTool){
-      const [res1, res2] = await Promise.all([
-        window.cowork.callMcpTool('mcp__2ab58198-5cf1-41c3-ad51-21c43099d588__read_file_content',{fileId:'1Fy-aFNwLCcRjgd1iAtgn-eUtxeVDr0IOoFjrcYR2g-k'}),
-        window.cowork.callMcpTool('mcp__2ab58198-5cf1-41c3-ad51-21c43099d588__read_file_content',{fileId:'1E3TmOJwijZWD46Z43xvh3uAKMR9kcF6J'}),
-      ]);
-      // Parse live summary from res1 (แพทย์รพช)
-      if(res1 && res1.fileContent) parseLiveRphc(res1.fileContent);
-      // Manual corrections: sheet summary ยังไม่อัปเดตตามรายชื่อจริง
-      applyManualCorrections();
-      document.getElementById('updated-badge').textContent = '✅ อัปเดต ' + new Date().toLocaleString('th-TH',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
-    } else {
-      document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
-    }
-  } catch(e){
-    document.getElementById('updated-badge').textContent = '📋 ข้อมูล ณ 11 พ.ค. 69';
-  }
-  renderTab1();
-  renderTab2();
-  renderTab3();
-  renderTab4();
-  document.getElementById('loading').style.display='none';
+function renderIntern1List() {
+  document.getElementById('intern1ListWrap').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+      <thead style="background:#e8eeff;"><tr>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;">#</th>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;text-align:left;">ชื่อ - นามสกุล</th>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;text-align:center;">วันที่บรรจุ</th>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;text-align:center;">ต้นสังกัด</th>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;text-align:center;">สถานะ</th>
+        <th style="padding:10px 12px;font-size:.84rem;color:#5a6a96;">หมายเหตุ</th>
+      </tr></thead>
+      <tbody>${INTERN1_LIST.map((r,i)=>{
+        let chip='background:#eee;color:#555';
+        if(r.status==='ปฏิบัติงานต่อ') chip='background:rgba(82,196,160,.2);color:#1a9970';
+        else if(r.status==='ไม่ออกรพช.') chip='background:rgba(245,166,35,.2);color:#c47d0a';
+        else if(r.status==='ฝากฝึก') chip='background:rgba(244,127,127,.2);color:#c0392b';
+        return `<tr>
+          <td style="padding:8px 11px;color:#8a96b8;">${i+1}</td>
+          <td style="padding:8px 11px;font-weight:500;">${r.name}</td>
+          <td style="padding:8px 11px;text-align:center;font-size:.78rem;">${r.date}</td>
+          <td style="padding:8px 11px;text-align:center;"><span class="badge-sp">${r.org}</span></td>
+          <td style="padding:8px 11px;text-align:center;"><span style="padding:2px 8px;border-radius:20px;font-size:.73rem;font-weight:600;${chip}">${r.status}</span></td>
+          <td style="padding:8px 11px;font-size:.78rem;color:#5a6a96;">${r.note||'-'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
 }
 
-function parseLiveRphc(content){
-  const lines = content.split('\n');
-  const parseN = v=>{ const m=(v||'').replace(/[^0-9.]/g,''); return m?parseFloat(m):0; };
+// Tabs & Accordion
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleAcc(id){
+  const body=document.getElementById('body-'+id);
+  const arr=document.getElementById('arr-'+id);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arr.classList.toggle('open',!open);
+  if(!open && id==='acc1') setTimeout(()=>renderComparisonChart(),60);
+}
 
-  // ─── 1. Parse summary table (qs, ql, fte, i1-i3, gp, sp) ───
-  const summaryKeys = [
-    ['ทองผาภูมิ',0],['สมเด็จพระสังฆราช',1],['บ่อพลอย',2],
-    ['เจ้าคุณไพบูลย์',3],['ด่านมะขามเตี้ย',4],['ท่ากระดาน',5],
-    ['ไทรโยค',6],['เลาขวัญ',7],['สถานพระบารมี',8],['สมเด็จพระปิยมหาราช',9],
-    ['สังขละบุรี',10],['ห้วยกระเจา',11],['ศุกร์ศิริ',12],['หนองปรือ',13]
-  ];
-  lines.forEach(line=>{
-    if(!line.includes('|')||line.includes(':-:')) return;
-    const cols = line.split('|').map(c=>c.trim()).filter(Boolean);
-    if(cols.length < 10) return;
-    const qs = parseN(cols[1]), ql = parseN(cols[2]);
-    if(!qs || !ql) return; // not a summary data row
-    const match = summaryKeys.find(([k])=>cols[0].includes(k));
-    if(!match) return;
-    const hi = match[1];
-    HOSPITALS[hi].qs  = qs;
-    HOSPITALS[hi].ql  = ql;
-    HOSPITALS[hi].fte = parseN(cols[4]) || HOSPITALS[hi].fte;
-    HOSPITALS[hi].i1  = parseN(cols[6]);
-    HOSPITALS[hi].i2  = parseN(cols[7]);
-    HOSPITALS[hi].i3  = parseN(cols[8]);
-    HOSPITALS[hi].gp  = parseN(cols[9]);
-    if(cols[10]) HOSPITALS[hi].sp = parseN(cols[10]);
-  });
+// INIT — ไม่มี MCP call, render ทันที
+function init(){
+  renderKpi();
+  renderChart();
+  renderHospDropdown();
+  renderInternMonthly();
+  renderInternRotate();
+  renderAllocCards();
+  renderAllocDetails();
+  renderCompTable();
+  renderIntern1List();
+}
 
-  // ─── 2. Parse individual doctor lists (in sheet order = HOSPITALS order) ───
-  function normalizeType(t){
-    if(!t) return 'GP';
-    if(t.includes('Specialist')) return 'Specialist';
-    if(t.includes('Intern 1'))   return 'Intern 1';
-    if(t.includes('Intern 2'))   return 'Intern 2';
-    if(t.includes('Intern 3'))   return 'Intern 3';
-    return 'GP';
-  }
-
-  let listHospIdx = -1;
-  let inList = false;
-  let currentDocs = [];
-
-  function saveDocs(){
-    if(listHospIdx >= 0 && listHospIdx < HOSPITALS.length && currentDocs.length > 0){
-      const hospName = HOSPITALS[listHospIdx].name;
-      if(DOCTOR_LISTS[hospName] !== undefined){
-        DOCTOR_LISTS[hospName] = currentDocs;
-        HOSPITALS[listHospIdx].actual = currentDocs.length;
-        // คำนวณ FTE ใหม่จากจำนวนจริง (ไม่รวม intern เพื่อ
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
