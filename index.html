@@ -45,7 +45,9 @@ tr:hover td{background:#f7f9ff;}
 .badge-gp{background:rgba(82,196,160,.2);color:#1a9970;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
 .badge-int{background:rgba(176,127,232,.18);color:#8040c8;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
 .intern-table th,.intern-table td{text-align:center;padding:9px 8px;font-size:.9rem;}
-.intern-table td:first-child,.intern-table th:first-child{text-align:left;padding-left:13px;min-width:170px;}
+.intern-table th:first-child{text-align:left;padding-left:13px;min-width:170px;position:sticky;left:0;z-index:3;background:#e8eeff;}
+.intern-table td:first-child{text-align:left;padding-left:13px;min-width:170px;position:sticky;left:0;z-index:2;background:#fff;}
+.intern-table tr:hover td:first-child{background:#f7f9ff;}
 .intern-table td:nth-child(2),.intern-table td:nth-child(3){text-align:left;}
 .cell-count{background:rgba(91,141,238,.15);color:#5b8dee;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;}
 .cell-assign{border-radius:5px;padding:2px 7px;font-size:.76rem;font-weight:600;white-space:nowrap;background:rgba(91,141,238,.12);color:#5b8dee;}
@@ -65,6 +67,23 @@ tr:hover td{background:#f7f9ff;}
 .alloc-table th{background:#e8eeff;font-size:.84rem;text-align:center;padding:9px 10px;}
 .alloc-table td{text-align:center;font-size:.86rem;padding:9px 10px;}
 .alloc-table td:first-child{text-align:left;font-weight:600;}
+@keyframes pulse-month{0%,100%{box-shadow:0 0 0 0 rgba(82,196,160,.8);}50%{box-shadow:0 0 14px 6px rgba(82,196,160,.4);}}
+.cur-month-th{background:#52c4a0!important;color:#fff!important;font-size:1rem!important;animation:pulse-month 1.4s ease-in-out infinite;}
+.cur-month-th span{opacity:.9!important;}
+.cur-month-td{background:rgba(82,196,160,.12)!important;}
+.cur-month-td .cell-count{background:rgba(82,196,160,.65)!important;color:#fff!important;font-size:1rem!important;width:30px!important;height:30px!important;font-weight:800!important;animation:pulse-month 1.4s ease-in-out infinite;}
+.cur-month-td-dash{background:rgba(82,196,160,.08)!important;color:#3aaa88!important;}
+.t2-wrap{display:flex;border-radius:16px;overflow:hidden;border:1.5px solid #c7d4f5;box-shadow:0 2px 10px rgba(91,141,238,.07);min-height:420px;}
+.t2-sidebar{width:185px;flex-shrink:0;background:#eef2ff;border-right:1.5px solid #c7d4f5;display:flex;flex-direction:column;}
+.t2-sidebar-label{padding:12px 14px 6px;font-size:.7rem;font-weight:700;color:#8a96b8;letter-spacing:.06em;text-transform:uppercase;}
+.t2-sb-item{padding:16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:#5a6a96;border-left:4px solid transparent;transition:background .18s,color .18s;user-select:none;}
+.t2-sb-item:hover{background:#dde6ff;color:#3a6ae8;}
+.t2-sb-item.active{background:#5b8dee;color:#fff;border-left-color:#2d5bc8;}
+.t2-sb-icon{font-size:1.4rem;line-height:1;}
+.t2-sb-text{font-size:.88rem;font-weight:700;line-height:1.4;}
+.t2-content{flex:1;overflow:hidden;background:#fff;}
+.t2-panel{display:none;height:100%;}
+.t2-panel.active{display:block;}
 </style>
 </head>
 <body>
@@ -118,33 +137,55 @@ tr:hover td{background:#f7f9ff;}
 
 <!-- TAB 2 -->
 <div id="t2" class="tab-panel">
-  <div class="chart-card">
-    <h3>📅 ตาราง Intern 1 วน รพช. ปี 69</h3>
-    <div class="table-wrap">
-      <table class="intern-table">
-        <thead><tr>
-          <th>โรงพยาบาล</th><th>ผู้ประสาน</th><th>เบอร์โทร</th>
-          <th>พค</th><th>มิย</th><th>กค</th><th>สค</th><th>กย</th>
-          <th>ตค</th><th>พย</th><th>ธค</th><th>มค</th><th>กพ</th><th>มีค</th><th>เมย</th><th>พค(ถัดไป)</th>
-        </tr></thead>
-        <tbody id="internTbody"></tbody>
-      </table>
+  <div class="t2-wrap">
+
+    <!-- Sidebar -->
+    <div class="t2-sidebar">
+      <div class="t2-sidebar-label">เลือกตาราง</div>
+      <div id="sb1" class="t2-sb-item active" onclick="showInternPanel(1)">
+        <span class="t2-sb-icon">📅</span>
+        <span class="t2-sb-text">ตาราง Intern 1<br>วนรพช. แยกตามรพ.</span>
+      </div>
+      <div id="sb2" class="t2-sb-item" onclick="showInternPanel(2)">
+        <span class="t2-sb-icon">👩‍⚕️</span>
+        <span class="t2-sb-text">รายชื่อ Intern 1<br>วนรพช.ในแต่ละเดือน</span>
+      </div>
     </div>
-  </div>
-  <div class="chart-card">
-    <h3>👩‍⚕️ ตารางรายชื่อ Intern วนรพช.</h3>
-    <div class="table-wrap">
-      <table class="intern-table">
-        <thead><tr>
-          <th>ชื่อ</th>
-          <th>มิย</th><th>กค</th><th>สค</th><th>กย</th>
-          <th>ตค</th><th>พย</th><th>ธค</th><th>มค</th><th>กพ</th>
-          <th>มีค</th><th>เมย</th><th>พค</th><th>มิย</th><th>กค</th><th>สค</th>
-        </tr></thead>
-        <tbody id="internRotateTbody"></tbody>
-      </table>
-    </div>
-  </div>
+
+    <!-- Content -->
+    <div class="t2-content">
+
+      <!-- Panel 1 -->
+      <div id="panel1" class="t2-panel active">
+        <div class="table-wrap" style="border:none;border-radius:0;">
+          <table class="intern-table">
+            <thead><tr>
+              <th>โรงพยาบาล</th><th>ผู้ประสาน</th><th>เบอร์โทร</th>
+              <th id="imth-0">พค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-1">มิย<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-2">กค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-3">สค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-4">กย<br><span style="font-weight:400;font-size:.7rem;">69</span></th>
+              <th id="imth-5">ตค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-6">พย<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-7">ธค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="imth-8">มค<br><span style="font-weight:400;font-size:.7rem;">70</span></th><th id="imth-9">กพ<br><span style="font-weight:400;font-size:.7rem;">70</span></th><th id="imth-10">มีค<br><span style="font-weight:400;font-size:.7rem;">70</span></th><th id="imth-11">เมย<br><span style="font-weight:400;font-size:.7rem;">70</span></th><th id="imth-12">พค<br><span style="font-weight:400;font-size:.7rem;">70</span></th>
+            </tr></thead>
+            <tbody id="internTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Panel 2 -->
+      <div id="panel2" class="t2-panel">
+        <div class="table-wrap" style="border:none;border-radius:0;">
+          <table class="intern-table">
+            <thead><tr>
+              <th>ชื่อ</th>
+              <th id="rmth-0">มิย<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-1">กค<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-2">สค<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-3">กย<br><span style="font-weight:400;font-size:.7rem;">68</span></th>
+              <th id="rmth-4">ตค<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-5">พย<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-6">ธค<br><span style="font-weight:400;font-size:.7rem;">68</span></th><th id="rmth-7">มค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-8">กพ<br><span style="font-weight:400;font-size:.7rem;">69</span></th>
+              <th id="rmth-9">มีค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-10">เมย<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-11">พค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-12">มิย<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-13">กค<br><span style="font-weight:400;font-size:.7rem;">69</span></th><th id="rmth-14">สค<br><span style="font-weight:400;font-size:.7rem;">69</span></th>
+            </tr></thead>
+            <tbody id="internRotateTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /t2-content -->
+  </div><!-- /t2-wrap -->
 </div>
 
 <!-- TAB 3 -->
@@ -526,12 +567,30 @@ function renderDoctorTable() {
 }
 
 // Tab 2
+function getCurrentMonthIdx(){
+  const m = new Date().getMonth()+1; // 1-12
+  return m >= 5 ? m - 5 : m + 7;   // พค69=0 … เมย70=11, พค70(next)=12
+}
+function highlightCurrentMonthHeader(){
+  document.querySelectorAll('[id^="imth-"]').forEach(th=>{
+    const idx = parseInt(th.id.split('-')[1]);
+    if(idx === getCurrentMonthIdx()) th.classList.add('cur-month-th');
+    else th.classList.remove('cur-month-th');
+  });
+}
+function scrollToCurrentMonth(){
+  const th = document.getElementById('imth-'+getCurrentMonthIdx());
+  if(th) th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
 function renderInternMonthly() {
+  const curIdx = getCurrentMonthIdx();
+  highlightCurrentMonthHeader();
   document.getElementById('internTbody').innerHTML = INTERN_MONTHLY.map(r=>{
-    const cells = r.months.map(m=>{
+    const cells = r.months.map((m,i)=>{
       const v=(m||'').trim();
-      if(!v||v==='0') return '<td style="color:#d0d8f0">—</td>';
-      return `<td><span class="cell-count">${v}</span></td>`;
+      const isCur = i === curIdx;
+      if(!v||v==='0') return `<td class="${isCur?'cur-month-td-dash':''}" style="color:${isCur?'#8aabee':'#d0d8f0'}">—</td>`;
+      return `<td class="${isCur?'cur-month-td':''}"><span class="cell-count">${v}</span></td>`;
     }).join('');
     return `<tr>
       <td style="font-weight:600;">${r.hosp}</td>
@@ -540,19 +599,41 @@ function renderInternMonthly() {
       ${cells}
     </tr>`;
   }).join('');
+  setTimeout(scrollToCurrentMonth, 250);
 }
 
 const HOSP_COLORS={'ทผภ':'rgba(143,174,245,.22);color:#3a6ae8','หนองปรือ':'rgba(176,127,232,.18);color:#7030b8','สังขละ':'rgba(245,200,100,.25);color:#b07000','เลาขวัญ':'rgba(82,196,160,.2);color:#1a9970','บ่อพลอย':'rgba(244,127,127,.2);color:#c0392b','ด่านฯ':'rgba(245,166,35,.2);color:#c47d0a','ท่ากระดาน':'rgba(79,179,217,.2);color:#1a7ca0','ท่าม่วง':'rgba(200,180,245,.3);color:#6040c8'};
 function getStyle(v){for(const[k,s] of Object.entries(HOSP_COLORS)){if(v.includes(k)){const p=s.split(';');return `background:${p[0].replace('background:','')};${p[1]||''}`;}}return 'background:rgba(91,141,238,.12);color:#5b8dee';}
 
+function getCurrentRotateIdx(){
+  const now=new Date(); const m=now.getMonth()+1; const y=now.getFullYear();
+  // ตารางเริ่ม มิย68(6/2025)=0 … กย68(9/2025)=3
+  // ตค68(10/2025)=4 … ธค68(12/2025)=6
+  // มค69(1/2026)=7 … เมย69(4/2026)=10
+  // พค69(5/2026)=11, มิย69(6/2026)=12, กค69(7/2026)=13, สค69(8/2026)=14
+  if(y===2025 && m>=6 && m<=12) return m-6;   // 6→0 … 12→6
+  if(y===2026 && m>=1 && m<=8)  return m+6;   // 1→7 … 8→14
+  return -1;
+}
+function scrollToCurrentRotate(){
+  const idx=getCurrentRotateIdx();
+  const th=document.getElementById('rmth-'+(idx>=0?idx:0));
+  if(th) th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
 function renderInternRotate() {
+  const curIdx=getCurrentRotateIdx();
+  document.querySelectorAll('[id^="rmth-"]').forEach(th=>{
+    th.classList.toggle('cur-month-th', parseInt(th.id.split('-')[1])===curIdx);
+  });
   document.getElementById('internRotateTbody').innerHTML = INTERN_ROTATE.map(r=>{
-    const cells = r.m.map(v=>{
-      if(!v) return '<td style="color:#d0d8f0">—</td>';
-      return `<td><span class="cell-assign" style="${getStyle(v)}">${v}</span></td>`;
+    const cells = r.m.map((v,i)=>{
+      const isCur=i===curIdx;
+      if(!v) return `<td class="${isCur?'cur-month-td-dash':''}" style="color:${isCur?'#8aabee':'#d0d8f0'}">—</td>`;
+      return `<td class="${isCur?'cur-month-td':''}"><span class="cell-assign" style="${getStyle(v)}">${v}</span></td>`;
     }).join('');
     return `<tr><td style="font-weight:600;text-align:left;padding-left:13px;">${r.name}</td>${cells}</tr>`;
   }).join('');
+  setTimeout(scrollToCurrentRotate, 300);
 }
 
 // Tab 3
@@ -815,12 +896,26 @@ function renderIntern1List() {
     </table>`;
 }
 
+// Tab 2 sidebar
+function showInternPanel(n){
+  [1,2].forEach(i=>{
+    const panel=document.getElementById('panel'+i);
+    const sb=document.getElementById('sb'+i);
+    const isActive=(i===n);
+    panel.classList.toggle('active',isActive);
+    sb.classList.toggle('active',isActive);
+  });
+  if(n===1) setTimeout(scrollToCurrentMonth,200);
+  if(n===2) setTimeout(scrollToCurrentRotate,200);
+}
+
 // Tabs & Accordion
 function switchTab(id,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  if(id==='t2'){ setTimeout(scrollToCurrentMonth, 300); setTimeout(scrollToCurrentRotate, 450); }
 }
 function toggleAcc(id){
   const body=document.getElementById('body-'+id);
@@ -848,4 +943,3 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
-                       
