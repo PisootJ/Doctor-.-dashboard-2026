@@ -91,7 +91,7 @@ tr:hover td{background:#f7f9ff;}
 <div class="header">
   <div>
     <h1>🏥 Dashboard ติดตามแพทย์ สสจ.กาญจนบุรี</h1>
-    <div class="sub">ข้อมูล ณ วันที่ 25 พฤษภาคม 2569 · แพทย์รพช. + แพทย์สสจ.xlsx</div>
+    <div class="sub">ข้อมูล ณ วันที่ 27 พฤษภาคม 2569 · แพทย์รพช. + แพทย์สสจ.xlsx</div>
   </div>
   <div class="badge" id="updateBadge">ข้อมูล 25 พ.ค. 2569</div>
 </div>
@@ -884,8 +884,7 @@ function renderCompTable() {
         <td style="padding-left:8px;">รวม</td>
         <td>${ALLOC.reduce((s,r)=>s+r.d68,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp68,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp68,0)}</td>
         <td>${ALLOC.reduce((s,r)=>s+r.total69,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.gp,0)}</td><td>${ALLOC.reduce((s,r)=>s+r.sp,0)}</td>
-        ${(d=>{const c=d>=0?'#1a9970':'#e05454';const sign=d>=0?'+':'';return `<td style="color:${c};font-weight:700;">${sign}${d}</td>`;
-        })(ALLOC.reduce((s,r)=>s+r.total69-r.d68,0))}<td>-</td>
+        ${(d=>{const c=d>=0?'#1a9970':'#e05454';const sign=d>=0?'+':'';return `<td style="color:${c};font-weight:700;">${sign}${d}</td>`;        })(ALLOC.reduce((s,r)=>s+r.total69-r.d68,0))}<td>-</td>
       </tr></tbody>
     </table>`;
 }
@@ -936,4 +935,32 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  btn.clas
+  btn.classList.add('active');
+  if(id==='t2'){ setTimeout(scrollToCurrentMonth, 300); setTimeout(scrollToCurrentRotate, 450); }
+}
+function toggleAcc(id){
+  const body=document.getElementById('body-'+id);
+  const arr=document.getElementById('arr-'+id);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arr.classList.toggle('open',!open);
+  if(!open && id==='acc1') setTimeout(()=>renderComparisonChart(),60);
+}
+
+// INIT — ไม่มี MCP call, render ทันที
+function init(){
+  renderKpi();
+  renderChart();
+  renderHospDropdown();
+  renderInternMonthly();
+  renderInternRotate();
+  renderAllocCards();
+  renderAllocDetails();
+  renderCompTable();
+  renderIntern1List();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
