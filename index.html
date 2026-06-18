@@ -1014,17 +1014,17 @@ function setSyncUI(icon,msg,sub,pct,showClose){
   document.getElementById('syncCloseBtn').style.display=showClose?'inline-block':'none';
 }
 
-async function syncFromSheet(){
+async function syncFromSheet(silent=false){
   const modal=document.getElementById('syncModal');
-  modal.style.display='flex';
-  setSyncUI('🔄','กำลังเชื่อมต่อ...','เตรียมดึงข้อมูลจาก Google Sheet',0,false);
+  if(!silent){ modal.style.display='flex'; setSyncUI('🔄','กำลังเชื่อมต่อ...','เตรียมดึงข้อมูลจาก Google Sheet',0,false); }
+  else { document.getElementById('updateBadge').textContent='⏳ กำลังอัพเดท...'; }
 
   const hosps = Object.keys(SHEET_TAB_MAP);
   let done=0; let errors=[];
 
   for(const hospKey of hosps){
     const tabName = SHEET_TAB_MAP[hospKey];
-    setSyncUI('🔄',`ดึง ${hospKey}…`,`(${done+1}/${hosps.length})`,Math.round(done/hosps.length*90),false);
+    if(!silent) setSyncUI('🔄',`ดึง ${hospKey}…`,`(${done+1}/${hosps.length})`,Math.round(done/hosps.length*90),false);
     try{
       const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}&_=${Date.now()}`;
       const resp=await fetch(url,{cache:'no-cache'});
@@ -1059,12 +1059,20 @@ async function syncFromSheet(){
   const sel=document.getElementById('hospSelect');
   if(sel&&sel.value) renderDoctorTable();
 
-  if(errors.length===0){
-    setSyncUI('✅','อัพเดทสำเร็จ!',`${hosps.length} โรงพยาบาล`,100,true);
+  if(silent){
+    if(errors.length===0){
+      document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr+' ✓';
+    } else {
+      document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
+    }
   } else {
-    const errHosps=errors.length;
-    setSyncUI('⚠️',`อัพเดทแล้ว ${hosps.length-errHosps}/${hosps.length} รพ.`,
-      errors.length<=3?errors.join(' | '):`ดึงไม่ได้ ${errHosps} รพ. — ตรวจสอบ Share permission`,100,true);
+    if(errors.length===0){
+      setSyncUI('✅','อัพเดทสำเร็จ!',`${hosps.length} โรงพยาบาล`,100,true);
+    } else {
+      const errHosps=errors.length;
+      setSyncUI('⚠️',`อัพเดทแล้ว ${hosps.length-errHosps}/${hosps.length} รพ.`,
+        errors.length<=3?errors.join(' | '):`ดึงไม่ได้ ${errHosps} รพ. — ตรวจสอบ Share permission`,100,true);
+    }
   }
 }
 
@@ -1079,6 +1087,8 @@ function init(){
   renderAllocDetails();
   renderCompTable();
   renderIntern1List();
+  // Auto sync on load (silent — ใช้ embedded data ก่อน แล้วอัพเดทพื้นหลัง)
+  setTimeout(()=>syncFromSheet(true), 800);
 }
 
 document.addEventListener('DOMContentLoaded', init);
