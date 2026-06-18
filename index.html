@@ -93,7 +93,8 @@ tr:hover td{background:#f7f9ff;}
     <h1>🏥 Dashboard ติดตามแพทย์ สสจ.กาญจนบุรี</h1>
     <div class="sub">ข้อมูล ณ วันที่ 27 พฤษภาคม 2569 · แพทย์รพช. + แพทย์สสจ.xlsx</div>
   </div>
-  <div class="badge" id="updateBadge">ข้อมูล 25 พ.ค. 2569</div>
+  <div class="badge" id="updateBadge">ข้อมูล 27 พ.ค. 2569</div>
+  <button id="syncBtn" onclick="syncFromSheet()" title="ดึงข้อมูลล่าสุดจาก Google Sheet" style="margin-left:10px;background:rgba(91,141,238,.15);border:1px solid rgba(91,141,238,.4);color:#3a6ae8;border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;">🔄 Sync</button>
 </div>
 
 <div class="tabs-wrap">
@@ -947,6 +948,126 @@ function toggleAcc(id){
   if(!open && id==='acc1') setTimeout(()=>renderComparisonChart(),60);
 }
 
+
+// ============================================================
+// SYNC FROM GOOGLE SHEET
+// ============================================================
+const SHEET_ID = '1Fy-aFNwLCcRjgd1iAtgn-eUtxeVDr0IOoFjrcYR2g-k';
+
+// Map DOCTOR_DATA key → Google Sheet tab name
+const SHEET_TAB_MAP = {
+  'ทองผาภูมิ':                              'ทองผาภูมิ',
+  'สมเด็จพระสังฆราชองค์ที่๑๙':             'สมเด็จพระสังฆราชองค์ที่๑๙',
+  'บ่อพลอย':                                'บ่อพลอย',
+  'เจ้าคุณไพบูลย์พนมทวน':                  'เจ้าคุณไพบูลย์พนมทวน',
+  'ด่านมะขามเตี้ย':                         'ด่านมะขามเตี้ย',
+  'ท่ากระดาน':                              'ท่ากระดาน',
+  'ไทรโยค':                                 'ไทรโยค',
+  'เลาขวัญ':                                'เลาขวัญ',
+  'สถานพระบารมี':                           'สถานพระบารมี',
+  'สมเด็จพระปิยมหาราชรมณียเขต':            'สมเด็จพระปิยมหาราชรมณียเขต',
+  'สังขละบุรี':                             'สังขละบุรี',
+  'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา':   'ห้วยกระเจาเฉลิมพระเกียรติ ๘๐ พรรษา',
+  'ศุกร์ศิริศรีสวัสดิ์':                   'ศุกร์ศิริศรีสวัสดิ์',
+  'หนองปรือ':                               'หนองปรือ',
+};
+
+function parseCSVLine(line) {
+  const cells = []; let inQ=false; let cell='';
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){cells.push(cell.trim().replace(/^"|"$/g,''));cell='';}
+    else{cell+=c;}
+  }
+  cells.push(cell.trim().replace(/^"|"$/g,''));
+  return cells;
+}
+
+function parseHospitalCSV(csvText) {
+  const lines = csvText.split('\n').filter(l=>l.trim());
+  const doctors = [];
+  for(const line of lines){
+    const cols = parseCSVLine(line);
+    const idx = cols[0];
+    if(!/^\d+$/.test(idx)) continue;
+    const name = cols[1]||'';
+    const age  = cols[2]||'-';
+    const rawType = cols[4]||'';
+    const note = cols[8]||'';
+    if(!name||name==='ชื่อ - นามสกุล แพทย์') continue;
+    let type='GP';
+    if(rawType.includes('Specialist')) type='Specialist';
+    else if(rawType.includes('Intern 3')) type='Intern 3';
+    else if(rawType.includes('Intern 2')) type='Intern 2';
+    else if(rawType.includes('Intern 1')) type='Intern 1';
+    doctors.push({name:name.trim(), age:age||'-', type, note:note.trim()});
+  }
+  return doctors;
+}
+
+function setSyncUI(icon,msg,sub,pct,showClose){
+  document.getElementById('syncIcon').textContent=icon;
+  document.getElementById('syncMsg').textContent=msg;
+  document.getElementById('syncSub').textContent=sub;
+  document.getElementById('syncProgress').style.width=pct+'%';
+  document.getElementById('syncCloseBtn').style.display=showClose?'inline-block':'none';
+}
+
+async function syncFromSheet(){
+  const modal=document.getElementById('syncModal');
+  modal.style.display='flex';
+  setSyncUI('🔄','กำลังเชื่อมต่อ...','เตรียมดึงข้อมูลจาก Google Sheet',0,false);
+
+  const hosps = Object.keys(SHEET_TAB_MAP);
+  let done=0; let errors=[];
+
+  for(const hospKey of hosps){
+    const tabName = SHEET_TAB_MAP[hospKey];
+    setSyncUI('🔄',`ดึง ${hospKey}…`,`(${done+1}/${hosps.length})`,Math.round(done/hosps.length*90),false);
+    try{
+      const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}&_=${Date.now()}`;
+      const resp=await fetch(url,{cache:'no-cache'});
+      if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const csv=await resp.text();
+      if(csv.includes('<!DOCTYPE')||csv.includes('<html')) throw new Error('ต้อง Share Sheet เป็น Public');
+      const docs=parseHospitalCSV(csv);
+      if(docs.length>0){
+        DOCTOR_DATA[hospKey]=docs;
+        const row=SUMMARY.find(s=>s.name===hospKey);
+        if(row){
+          row.total=docs.length;
+          row.sp=docs.filter(d=>d.type==='Specialist').length;
+          row.gp=docs.filter(d=>d.type==='GP').length;
+          row.i3=docs.filter(d=>d.type==='Intern 3').length;
+          row.i2=docs.filter(d=>d.type==='Intern 2').length;
+          row.i1=docs.filter(d=>d.type==='Intern 1').length;
+        }
+        done++;
+      }
+    }catch(e){ errors.push(`${hospKey}: ${e.message}`); done++; }
+  }
+
+  // อัพเดท badge วันที่
+  const now=new Date();
+  const thMonths=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dateStr=`${now.getDate()} ${thMonths[now.getMonth()]} ${now.getFullYear()+543}`;
+  document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
+
+  // Re-render
+  renderKpi(); renderChart(); renderHospDropdown(); renderCompTable();
+  const sel=document.getElementById('hospSelect');
+  if(sel&&sel.value) renderDoctorTable();
+
+  if(errors.length===0){
+    setSyncUI('✅','อัพเดทสำเร็จ!',`${hosps.length} โรงพยาบาล`,100,true);
+  } else {
+    const errHosps=errors.length;
+    setSyncUI('⚠️',`อัพเดทแล้ว ${hosps.length-errHosps}/${hosps.length} รพ.`,
+      errors.length<=3?errors.join(' | '):`ดึงไม่ได้ ${errHosps} รพ. — ตรวจสอบ Share permission`,100,true);
+  }
+}
+
 // INIT — ไม่มี MCP call, render ทันที
 function init(){
   renderKpi();
@@ -962,5 +1083,19 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+
+<!-- Sync Modal -->
+<div id="syncModal" style="display:none;position:fixed;inset:0;background:rgba(30,40,70,.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px 32px;min-width:320px;max-width:420px;box-shadow:0 8px 32px rgba(30,40,70,.18);text-align:center;">
+    <div id="syncIcon" style="font-size:2rem;margin-bottom:10px;">🔄</div>
+    <div id="syncMsg" style="font-size:.95rem;font-weight:600;color:#2a3a6a;margin-bottom:6px;">กำลังเชื่อมต่อ...</div>
+    <div id="syncSub" style="font-size:.8rem;color:#6a7a9a;margin-bottom:18px;min-height:1.4em;"></div>
+    <div id="syncProgressWrap" style="background:#e8eeff;border-radius:8px;height:8px;overflow:hidden;margin-bottom:18px;">
+      <div id="syncProgress" style="background:#5b8dee;height:100%;width:0%;transition:width .3s;"></div>
+    </div>
+    <button id="syncCloseBtn" onclick="document.getElementById('syncModal').style.display='none';" style="display:none;background:#5b8dee;color:#fff;border:none;border-radius:20px;padding:8px 24px;font-size:.85rem;font-weight:600;cursor:pointer;">ปิด</button>
+  </div>
+</div>
+
 </body>
 </html>
