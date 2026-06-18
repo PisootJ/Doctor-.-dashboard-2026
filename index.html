@@ -1055,6 +1055,15 @@ async function syncFromSheet(silent=false){
   document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
 
   // Re-render
+  // อัพเดท INTERN_MONTHLY เดือนปัจจุบันจาก DOCTOR_DATA
+  const curMIdx = getCurrentMonthIdx();
+  INTERN_MONTHLY.forEach(row => {
+    const docs = DOCTOR_DATA[row.hosp];
+    if(docs && docs.length > 0){
+      const cnt = docs.filter(d=>d.type==='Intern 1').length;
+      if(row.months.length > curMIdx) row.months[curMIdx] = cnt > 0 ? String(cnt) : '';
+    }
+  });
   renderKpi(); renderChart(); renderHospDropdown(); renderInternMonthly(); renderInternRotate(); renderAllocCards(); renderAllocDetails(); renderCompTable(); renderIntern1List();
   const sel=document.getElementById('hospSelect');
   if(sel&&sel.value) renderDoctorTable();
