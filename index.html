@@ -1055,7 +1055,7 @@ async function syncFromSheet(silent=false){
   document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
 
   // Re-render
-  renderKpi(); renderChart(); renderHospDropdown(); renderCompTable();
+  renderKpi(); renderChart(); renderHospDropdown(); renderInternMonthly(); renderInternRotate(); renderAllocCards(); renderAllocDetails(); renderCompTable(); renderIntern1List();
   const sel=document.getElementById('hospSelect');
   if(sel&&sel.value) renderDoctorTable();
 
