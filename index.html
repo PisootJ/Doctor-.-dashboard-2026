@@ -545,7 +545,7 @@ function renderHospDropdown() {
   const sel = document.getElementById('hospSelect');
   SUMMARY.forEach(h=>{
     const opt=document.createElement('option');
-    opt.value=h.name; opt.text=`${h.name} (${h.total} คน)`;
+    opt.value=h.name; opt.text=h.name;
     sel.appendChild(opt);
   });
 }
