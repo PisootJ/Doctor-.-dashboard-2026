@@ -950,7 +950,8 @@ function toggleAcc(id){
 // ============================================================
 // SYNC FROM GOOGLE SHEET
 // ============================================================
-const SHEET_ID = '1Fy-aFNwLCcRjgd1iAtgn-eUtxeVDr0IOoFjrcYR2g-k';
+const SHEET_ID      = '1Fy-aFNwLCcRjgd1iAtgn-eUtxeVDr0IOoFjrcYR2g-k';
+const SHEET_ID_SSOJ = '1E3TmOJwijZWD46Z43xvh3uAKMR9kcF6J'; // แพทย์สสจ.
 
 // Map DOCTOR_DATA key → Google Sheet tab name
 const SHEET_TAB_MAP = {
@@ -1004,6 +1005,48 @@ function parseHospitalCSV(csvText) {
   return doctors;
 }
 
+
+// ---- Parse INTERN_MONTHLY from แพทย์สสจ. CSV ----
+function parseInternMonthlyCSV(csvText){
+  const rows = csvText.split('\n').map(l=>parseCSVLine(l));
+  const result = [];
+  for(const row of rows){
+    const name=(row[0]||'').trim();
+    if(!name||name.toLowerCase().startsWith('intern')||name.startsWith('ปี')) continue;
+    const coord=(row[1]||'').trim();
+    const tel=(row[2]||'').trim();
+    const months=[];
+    for(let i=3;i<=15;i++){
+      const v=(row[i]||'').trim();
+      if(!v||v==='0'||v==='0.0') months.push('');
+      else { const n=Math.round(parseFloat(v)); months.push(isNaN(n)?'':String(n)); }
+    }
+    result.push({hosp:name,coord,tel,months});
+  }
+  return result;
+}
+
+// ---- Parse INTERN_ROTATE from แพทย์สสจ. CSV ----
+function parseInternRotateCSV(csvText){
+  const rows = csvText.split('\n').map(l=>parseCSVLine(l));
+  const result = [];
+  for(const row of rows){
+    const name=(row[0]||'').trim();
+    if(!name) continue;
+    // Skip header rows (col[0] is empty for year/month headers)
+    if(!name.startsWith('พหล')&&!name.startsWith('มะการักษ์')&&name!=='-') continue;
+    const m=[];
+    for(let i=1;i<=24;i++){
+      const v=(row[i]||'').trim();
+      if(!v||v==='0'||v==='0.0') m.push('');
+      else if(parseFloat(v)===1) m.push('1');
+      else m.push(v);
+    }
+    result.push({name,m});
+  }
+  return result;
+}
+
 function setSyncUI(icon,msg,sub,pct,showClose){
   document.getElementById('syncIcon').textContent=icon;
   document.getElementById('syncMsg').textContent=msg;
@@ -1017,18 +1060,20 @@ async function syncFromSheet(silent=false){
   if(!silent){ modal.style.display='flex'; setSyncUI('🔄','กำลังเชื่อมต่อ...','เตรียมดึงข้อมูลจาก Google Sheet',0,false); }
   else { document.getElementById('updateBadge').textContent='⏳ กำลังอัพเดท...'; }
 
-  const hosps = Object.keys(SHEET_TAB_MAP);
+  const hosps=Object.keys(SHEET_TAB_MAP);
   let done=0; let errors=[];
+  const totalSteps=hosps.length+2;
 
+  // ── ขั้น 1: DOCTOR_DATA จาก แพทย์รพช. ──────────────────────────
   for(const hospKey of hosps){
-    const tabName = SHEET_TAB_MAP[hospKey];
-    if(!silent) setSyncUI('🔄',`ดึง ${hospKey}…`,`(${done+1}/${hosps.length})`,Math.round(done/hosps.length*90),false);
+    const tabName=SHEET_TAB_MAP[hospKey];
+    if(!silent) setSyncUI('🔄',`ดึง ${hospKey}…`,`(${done+1}/${hosps.length})`,Math.round(done/totalSteps*75),false);
     try{
       const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}&_=${Date.now()}`;
       const resp=await fetch(url,{cache:'no-cache'});
       if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const csv=await resp.text();
-      if(csv.includes('<!DOCTYPE')||csv.includes('<html')) throw new Error('ต้อง Share Sheet เป็น Public');
+      if(csv.includes('<!DOCTYPE')||csv.includes('<html')) throw new Error('ต้อง Share เป็น Public');
       const docs=parseHospitalCSV(csv);
       if(docs.length>0){
         DOCTOR_DATA[hospKey]=docs;
@@ -1041,35 +1086,69 @@ async function syncFromSheet(silent=false){
           row.i2=docs.filter(d=>d.type==='Intern 2').length;
           row.i1=docs.filter(d=>d.type==='Intern 1').length;
         }
-        done++;
       }
-    }catch(e){ errors.push(`${hospKey}: ${e.message}`); done++; }
+    }catch(e){ errors.push(`${hospKey}: ${e.message}`); }
+    done++;
   }
 
-  // อัพเดท badge วันที่
-  const now=new Date();
-  const thMonths=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  const dateStr=`${now.getDate()} ${thMonths[now.getMonth()]} ${now.getFullYear()+543}`;
-  document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
+  // ── ขั้น 2: INTERN_MONTHLY จาก แพทย์สสจ. ───────────────────────
+  if(!silent) setSyncUI('🔄','ดึง ตาราง Intern 1…','จาก แพทย์สสจ.',Math.round(done/totalSteps*88),false);
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID_SSOJ}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('ตารางแพทย์intern 1 วนรพช')}&_=${Date.now()}`;
+    const resp=await fetch(url,{cache:'no-cache'});
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const csv=await resp.text();
+    if(csv.includes('<!DOCTYPE')||csv.includes('<html')) throw new Error('แพทย์สสจ. ต้อง Share เป็น Public');
+    const parsed=parseInternMonthlyCSV(csv);
+    if(parsed.length>0){
+      for(const entry of parsed){
+        const ex=INTERN_MONTHLY.find(m=>m.hosp===entry.hosp);
+        if(ex){ ex.months=entry.months; ex.coord=entry.coord; ex.tel=entry.tel; }
+      }
+    }
+    done++;
+  }catch(e){ errors.push(`Intern Monthly: ${e.message}`); done++; }
 
-  // Re-render
-  renderKpi(); renderChart(); renderHospDropdown(); renderInternMonthly(); renderInternRotate(); renderAllocCards(); renderAllocDetails(); renderCompTable(); renderIntern1List();
+  // ── ขั้น 3: INTERN_ROTATE จาก แพทย์สสจ. ────────────────────────
+  if(!silent) setSyncUI('🔄','ดึง ตารางน้องออก รพช….','จาก แพทย์สสจ.',Math.round(done/totalSteps*96),false);
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID_SSOJ}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('ตารางรายชื่อน้องออกรพช')}&_=${Date.now()}`;
+    const resp=await fetch(url,{cache:'no-cache'});
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const csv=await resp.text();
+    if(csv.includes('<!DOCTYPE')||csv.includes('<html')) throw new Error('แพทย์สสจ. ต้อง Share เป็น Public');
+    const parsed=parseInternRotateCSV(csv);
+    // อัพเดทเชิงตำแหน่ง — preserve display names, replace month data
+    if(parsed.length>0){
+      for(let i=0;i<parsed.length;i++){
+        if(i<INTERN_ROTATE.length) INTERN_ROTATE[i].m=parsed[i].m;
+        else INTERN_ROTATE.push(parsed[i]);
+      }
+    }
+    done++;
+  }catch(e){ errors.push(`Intern Rotate: ${e.message}`); done++; }
+
+  // ── Badge + Re-render ────────────────────────────────────────────
+  const now=new Date();
+  const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dateStr=`${now.getDate()} ${thM[now.getMonth()]} ${now.getFullYear()+543}`;
+  renderKpi(); renderChart(); renderHospDropdown(); renderInternMonthly(); renderInternRotate();
+  renderAllocCards(); renderAllocDetails(); renderCompTable(); renderIntern1List();
   const sel=document.getElementById('hospSelect');
   if(sel&&sel.value) renderDoctorTable();
 
+  const internErrors=errors.filter(e=>e.startsWith('Intern'));
+  const hospErrors=errors.filter(e=>!e.startsWith('Intern'));
   if(silent){
-    if(errors.length===0){
-      document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr+' ✓';
-    } else {
-      document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr;
-    }
+    document.getElementById('updateBadge').textContent='ข้อมูล '+dateStr+(errors.length===0?' ✓':'');
   } else {
     if(errors.length===0){
-      setSyncUI('✅','อัพเดทสำเร็จ!',`${hosps.length} โรงพยาบาล`,100,true);
+      setSyncUI('✅','อัพเดทสำเร็จ!',`${hosps.length} รพ. + Intern Monthly + Intern Rotate`,100,true);
     } else {
-      const errHosps=errors.length;
-      setSyncUI('⚠️',`อัพเดทแล้ว ${hosps.length-errHosps}/${hosps.length} รพ.`,
-        errors.length<=3?errors.join(' | '):`ดึงไม่ได้ ${errHosps} รพ. — ตรวจสอบ Share permission`,100,true);
+      let sub='';
+      if(hospErrors.length) sub+=`รพ.ไม่ได้ ${hospErrors.length}`;
+      if(internErrors.length) sub+=(sub?' | ':'')+internErrors.map(e=>e.split(':')[0]).join(', ')+' — Share แพทย์สสจ. เป็น Public';
+      setSyncUI('⚠️','อัพเดทแล้ว (บางส่วน)',sub,100,true);
     }
   }
 }
